@@ -2,26 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+    font-family: PPNr;
+    src: url(../fonts/PP\ Neue\ Machina\ Inktrap\ Medium.ttf);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "PPNr";
 }
 
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  width: 100%;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+#main {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+#bgPage1 {
+  background-image: url("../assets/Hero_Background_1.svg");
+  background-position: center;
+  background-size: cover;
+  background-color: #0b163e;
 }
