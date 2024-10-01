@@ -8,7 +8,7 @@ const page = () => {
       <section className="">
         <Navbar />
       </section>
-      <section className="">
+      <section className="sm:hidden md:hidden">
         <Page_1 />
       </section>
     </>
