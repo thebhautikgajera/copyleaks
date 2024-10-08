@@ -3,6 +3,7 @@ import React, { useState, useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import Navbar from "./Navbar";
 
 const Page_1: React.FC = () => {
   const [text, setText] = useState("");
@@ -41,7 +42,7 @@ const Page_1: React.FC = () => {
       } else {
         const limitedText = words.slice(0, wordLimit).join(" ");
         setText(limitedText);
-        toast.error("You have reached 1000 words!", {
+        toast.error("You have reached 500 words!", {
           position: "bottom-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -57,14 +58,15 @@ const Page_1: React.FC = () => {
   );
 
   const wordCount = text.trim().split(/\s+/).length;
-  const wordLimit = 1000;
+  const wordLimit = 500;
 
   return (
     <>
-      <div className="min-h-screen text-white p-6" id="bgPage1">
+      <div className="min-h-screen w-full text-white p-6 bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900" id="bgPage1">
+        <Navbar />
         <header className="text-center">
           <h1 className="text-[4vw] font-bold ">
-            <span className=" bg-[linear-gradient(180deg,_#8d21fb,_#d089ff,_#FF8CDF)] bg-clip-text text-transparent ">
+            <span className="bg-[linear-gradient(180deg,_#8d21fb,_#d089ff,_#FF8CDF)] bg-clip-text text-transparent">
               AI Detector
             </span>{" "}
             By Copyleaks
@@ -79,10 +81,10 @@ const Page_1: React.FC = () => {
           </p>
         </header>
 
-        <main className="flex flex-col items-center  mt-8">
+        <main className="flex flex-col items-center mt-8">
           <div className="w-[90%] flex justify-between items-center gap-[3vw]">
             <div className="bg-white text-black rounded-md shadow-md p-6 w-full ">
-              <h2 className=" font-bold text-center text-3xl m-[0.5vw_0vw_2vw_0vw]">
+              <h2 className="font-bold text-center text-3xl m-[0.5vw_0vw_2vw_0vw]">
                 Was this text written by a human or AI?
               </h2>
               <h2 className="text-xl font-semibold">
@@ -115,16 +117,16 @@ const Page_1: React.FC = () => {
               <div className="flex justify-between items-center mt-4 ">
                 <button
                   onClick={genAns}
-                  disabled={wordCount >= 1000}
+                  disabled={wordCount >= 500}
                   className="py-1 px-4 rounded "
                   style={{
-                    backgroundColor: wordCount >= 1000 ? "#EF4444" : "#3B82F6",
+                    backgroundColor: wordCount >= 500 ? "#EF4444" : "#3B82F6",
                     color: "white",
                   }}
                 >
-                  {wordCount >= 1000 ? "Limit Reached!" : "Submit"}
+                  {wordCount >= 500 ? "Limit Reached!" : "Submit"}
                 </button>
-                <p style={{ color: wordCount >= 1000 ? "#EF4444" : "#000000" }}>
+                <p style={{ color: wordCount >= 500 ? "#EF4444" : "#000000" }}>
                   Word count: {wordCount} / {wordLimit}
                 </p>
               </div>
