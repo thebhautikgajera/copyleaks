@@ -38,7 +38,7 @@ const Pricing: React.FC = () => {
     {
       name: "Basic",
       price: "₹299",
-      priceId: "price_1Q7xdoSB8DEzcY7OhFYnho1E",
+      priceId: "price_1Q7y9USB8DEzcY7Oz93D7rx0",
       features: [
         "500 AI detections per month",
         "Basic reporting and analytics",
