@@ -18,9 +18,12 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="flex justify-between gap-[2vw] items-center">
-          <a href="/" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/' ? 'bg-[#1C2951] rounded-md' : ''}`}>
+          <Link href="/" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/' ? 'bg-[#1C2951] rounded-md' : ''}`}>
             Home
-          </a>
+          </Link>
+          <Link href="/about" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/about' ? 'bg-[#1C2951] rounded-md' : ''}`}>
+            About
+          </Link>
           <Link href="/pricing" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/pricing' ? 'bg-[#1C2951] rounded-md' : ''}`}>
             Pricing
           </Link>

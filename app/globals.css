@@ -35,8 +35,21 @@ body {
   position: relative;
 }
 
-#bgPage1 {
+#bgPage1Home {
   background-image: url("../assets/Hero_Background_1.svg");
+  background-position: center;
+  background-size: cover;
+  background-color: #0b163e;
+}
+
+#bgPage1About {
+  background-image: url("../assets/About_Background_1.svg");
+  background-position: center;
+  background-size: cover;
+  background-color: #0b163e;
+}
+#bgPage1Price {
+  background-image: url("../assets/Pricing_Background_1.svg");
   background-position: center;
   background-size: cover;
   background-color: #0b163e;
