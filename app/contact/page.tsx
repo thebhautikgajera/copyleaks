@@ -1,11 +1,10 @@
-import Page_1 from "../components/Home";
 import React from "react";
+import Contact from "../../components/Contact";
 
 const page = () => {
   return (
     <>
-        <Page_1 />
-      
+      <Contact />
     </>
   );
 };

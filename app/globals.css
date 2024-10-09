@@ -7,6 +7,11 @@
     src: url(../fonts/PP\ Neue\ Machina\ Inktrap\ Medium.ttf);
 }
 
+@font-face {
+    font-family: SSr;
+    src: url(../fonts/SUSE-Regular.ttf);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -48,8 +53,23 @@ body {
   background-size: cover;
   background-color: #0b163e;
 }
+
 #bgPage1Price {
   background-image: url("../assets/Pricing_Background_1.svg");
+  background-position: center;
+  background-size: cover;
+  background-color: #0b163e;
+}
+
+#bgPage1Contact {
+  background-image: url("../assets/Contact_Background_1.svg");
+  background-position: center;
+  background-size: cover;
+  background-color: #0b163e;
+}
+
+#bgPage1Footer {
+  background-image: url("../assets/Footer_Background_1.svg");
   background-position: center;
   background-size: cover;
   background-color: #0b163e;

@@ -27,6 +27,9 @@ const Navbar = () => {
           <Link href="/pricing" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/pricing' ? 'bg-[#1C2951] rounded-md' : ''}`}>
             Pricing
           </Link>
+          <Link href="/contact" className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === '/contact' ? 'bg-[#1C2951] rounded-md' : ''}`}>
+            Contact
+          </Link>
           <div className="flex gap-[2vw]">
             <button className="py-[.7vw] px-[2vw] rounded-full rounded-tr-none text-[#3F9AF5] border border-solid border-[#3F9AF5]">
               Sign Up
