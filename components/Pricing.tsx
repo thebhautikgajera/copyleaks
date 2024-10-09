@@ -1,15 +1,11 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./Navbar";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const Pricing: React.FC = () => {
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -38,7 +34,6 @@ const Pricing: React.FC = () => {
     {
       name: "Basic",
       price: "₹299",
-      priceId: "price_1Q7y9USB8DEzcY7Oz93D7rx0",
       features: [
         "500 AI detections per month",
         "Basic reporting and analytics",
@@ -47,11 +42,11 @@ const Pricing: React.FC = () => {
       ],
       buttonText: "Get Started",
       color: "from-blue-400 to-blue-600",
+      url: "https://example.com/basic-plan",
     },
     {
       name: "Pro",
       price: "₹699",
-      priceId: "price_1Q7xeGSB8DEzcY7Owp7KfX1y",
       features: [
         "Unlimited AI detections",
         "Advanced reporting and analytics",
@@ -62,11 +57,11 @@ const Pricing: React.FC = () => {
       buttonText: "Upgrade to Pro",
       color: "from-purple-400 to-purple-600",
       popular: true,
+      url: "https://buy.stripe.com/test_cN22aMaxU47sdTG8wx",
     },
     {
       name: "Enterprise",
       price: "Custom",
-      priceId: null,
       features: [
         "All Pro features included",
         "Custom integration and deployment",
@@ -77,38 +72,12 @@ const Pricing: React.FC = () => {
       ],
       buttonText: "Contact Sales",
       color: "from-indigo-400 to-indigo-600",
+      url: "https://example.com/enterprise-plan",
     },
   ];
 
-  const handlePayment = async (priceId: string | null) => {
-    if (!priceId) {
-      window.location.href = '/contact';
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe initialization failed');
-
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl: `${window.location.origin}/success`,
-        cancelUrl: `${window.location.origin}/pricing`,
-      });
-
-      if (error) {
-        console.error('Stripe Checkout Error:', error);
-        alert('Error processing payment. Please try again.');
-      }
-    } catch (error) {
-      console.error('Payment Error:', error);
-      alert('An error occurred during payment processing. Please try again or contact support.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleButtonClick = (url: string) => {
+    window.location.href = url;
   };
 
   return (
@@ -169,13 +138,12 @@ const Pricing: React.FC = () => {
                   </ul>
                 </div>
                 <motion.button
-                  className={`w-full bg-gradient-to-r ${plan.color} text-white py-4 px-6 rounded-full text-lg font-semibold hover:shadow-lg transition duration-300 z-10 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full bg-gradient-to-r ${plan.color} text-white py-4 px-6 rounded-full text-lg font-semibold hover:shadow-lg transition duration-300 z-10`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePayment(plan.priceId)}
-                  disabled={isLoading}
+                  onClick={() => handleButtonClick(plan.url)}
                 >
-                  {isLoading ? 'Processing...' : plan.buttonText}
+                  {plan.buttonText}
                 </motion.button>
                 <AnimatePresence>
                   {hoveredPlan === index && (
