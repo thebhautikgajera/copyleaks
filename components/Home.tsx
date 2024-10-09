@@ -17,13 +17,12 @@ const Home: React.FC = () => {
   const genAns = async () => {
     try {
       const response = await axios.post(
-        "https://ai-content-detector-ai-gpt.p.rapidapi.com/api/detectText/",
+        process.env.NEXT_PUBLIC_API_URL ?? '',
         { text },
         {
           headers: {
-            "x-rapidapi-key":
-              "07a09ee154mshda09783fcd25921p1a09f7jsn995f87a21cd8",
-            "x-rapidapi-host": "ai-content-detector-ai-gpt.p.rapidapi.com",
+            "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY ?? '',
+            "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPIDAPI_HOST,
             "Content-Type": "application/json",
           },
         }
