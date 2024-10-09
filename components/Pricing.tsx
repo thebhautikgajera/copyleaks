@@ -7,6 +7,13 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "./Navbar";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
 const Pricing: React.FC = () => {
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -90,39 +97,22 @@ const Pricing: React.FC = () => {
 
     try {
       const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe failed to initialize.');
+      if (!stripe) throw new Error('Stripe initialization failed');
 
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: priceId,
-        }),
+      const { error } = await stripe.redirectToCheckout({
+        lineItems: [{ price: priceId, quantity: 1 }],
+        mode: 'subscription',
+        successUrl: `${window.location.origin}/success`,
+        cancelUrl: `${window.location.origin}/pricing`,
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const session = await response.json();
-
-      if (session.sessionId) {
-        const result = await stripe.redirectToCheckout({
-          sessionId: session.sessionId,
-        });
-
-        if (result.error) {
-          console.error('Stripe Checkout Error:', result.error.message);
-          alert('An error occurred. Please try again.');
-        }
-      } else {
-        throw new Error('Failed to create checkout session');
+      if (error) {
+        console.error('Stripe Checkout Error:', error);
+        alert('Error processing payment. Please try again.');
       }
     } catch (error) {
       console.error('Payment Error:', error);
-      alert('An error occurred. Please try again.');
+      alert('An error occurred during payment processing. Please try again or contact support.');
     } finally {
       setIsLoading(false);
     }
