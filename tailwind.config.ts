@@ -10,9 +10,9 @@ const config: Config = {
     screens: {
       sm: { min: "320px", max: "480px" },
 
-      md: { min: "481px", max: "1024px" },
+      md: { min: "481px", max: "1023px" },
 
-      lg: { min: "1025px" },
+      lg: { min: "1024px" },
     },
     extend: {
       colors: {

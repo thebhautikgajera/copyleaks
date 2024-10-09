@@ -13,9 +13,12 @@ const Home: React.FC = () => {
   const [fakePercentage, setFakePercentage] = useState("0");
   const [humanPercentage, setHumanPercentage] = useState("100");
   const [sentences, setSentences] = useState([]);
+  const [analysisText, setAnalysisText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const genAns = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post(
         process.env.NEXT_PUBLIC_API_URL ?? '',
         { text },
@@ -33,9 +36,15 @@ const Home: React.FC = () => {
       setFakePercentage(fakePercentage);
       setHumanPercentage((100 - parseFloat(fakePercentage)).toFixed(2));
       setSentences(sentences);
+      
+      // Generate analysis text
+      const analysisResult = `Based on our analysis, ${fakePercentage}% of the content appears to be AI-generated. We detected ${aiWords} AI-generated words out of a total of ${text.trim().split(/\s+/).length} words. ${sentences.length} sentences were flagged as potentially AI-written.`;
+      setAnalysisText(analysisResult);
     } catch (error) {
       console.error("Error processing request:", error);
       toast.error("An error occurred while processing your request.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,7 +58,7 @@ const Home: React.FC = () => {
       } else {
         const limitedText = words.slice(0, wordLimit).join(" ");
         setText(limitedText);
-        toast.warning("You've reached the 500-word limit!", {
+        toast.error("You've reached the 500-word limit!", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -152,14 +161,38 @@ const Home: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={genAns}
-                disabled={wordCount === 0 || wordCount >= 500}
+                disabled={wordCount === 0 || wordCount >= 500 || isLoading}
                 className={`py-2 px-6 rounded-full text-white font-semibold transition duration-300 ${
-                  wordCount === 0 || wordCount >= 500
+                  wordCount === 0 || wordCount >= 500 || isLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600"
                 }`}
               >
-                {wordCount === 0
+                {isLoading ? (
+                  <motion.div
+                    className="flex items-center space-x-2"
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
+                  >
+                    <motion.span
+                      className="inline-block w-2 h-2 bg-white rounded-full"
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                    />
+                    <motion.span
+                      className="inline-block w-2 h-2 bg-white rounded-full"
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "easeInOut", delay: 0.2 }}
+                    />
+                    <motion.span
+                      className="inline-block w-2 h-2 bg-white rounded-full"
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "easeInOut", delay: 0.4 }}
+                    />
+                    <span className="ml-2">Analyzing...</span>
+                  </motion.div>
+                ) : wordCount === 0
                   ? "Enter text"
                   : wordCount >= 500
                   ? "Limit Reached!"
@@ -184,53 +217,87 @@ const Home: React.FC = () => {
             <h2 className="text-3xl text-center font-bold mb-6">
               Analysis Report
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <h3 className="text-xl font-semibold mb-2">Text Statistics</h3>
-                <p>
-                  Total words: <span className="font-bold">{wordCount}</span>
-                </p>
-                <p>
-                  AI-generated words:{" "}
-                  <span className="font-bold">{aiGenWords}</span>
-                </p>
-              </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <h3 className="text-xl font-semibold mb-2">Content Origin</h3>
-                <p>
-                  AI content:{" "}
-                  <span className="font-bold text-red-500">
-                    {fakePercentage}%
-                  </span>
-                </p>
-                <p>
-                  Human content:{" "}
-                  <span className="font-bold text-green-500">
-                    {humanPercentage}%
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">
-                AI-detected sentences:{" "}
-                <span className="font-bold">{sentences.length}</span>
-              </h3>
-              <ul className="space-y-2">
-                {sentences.map((sentence, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.4 + i * 0.1 }}
-                    className="bg-red-100 p-3 rounded-lg"
-                  >
-                    <span className="font-bold mr-2">{i + 1}.</span>
-                    {sentence}
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
+            {isLoading ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                className="text-center text-xl"
+              >
+                <motion.div
+                  className="inline-block w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+                <p className="mt-4">Loading analysis...</p>
+              </motion.div>
+            ) : analysisText ? (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="text-lg mb-6 p-4 bg-blue-100 rounded-lg"
+              >
+                {analysisText}
+              </motion.p>
+            ) : (
+              <p className="text-center text-xl">No analysis available yet. Please enter text and click &apos;Analyze&apos;.</p>
+            )}
+            {!isLoading && analysisText && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="bg-gray-100 p-4 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-2">Text Statistics</h3>
+                    <p>
+                      Total words: <span className="font-bold">{wordCount}</span>
+                    </p>
+                    <p>
+                      AI-generated words:{" "}
+                      <span className="font-bold">{aiGenWords}</span>
+                    </p>
+                  </div>
+                  <div className="bg-gray-100 p-4 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-2">Content Origin</h3>
+                    <p>
+                      AI content:{" "}
+                      <span className="font-bold text-red-500">
+                        {fakePercentage}%
+                      </span>
+                    </p>
+                    <p>
+                      Human content:{" "}
+                      <span className="font-bold text-green-500">
+                        {humanPercentage}%
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">
+                    AI-detected sentences:{" "}
+                    <span className="font-bold">{sentences.length}</span>
+                  </h3>
+                  <ul className="space-y-2">
+                    {sentences.map((sentence, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.4 + i * 0.1 }}
+                        className="bg-red-100 p-3 rounded-lg"
+                      >
+                        <span className="font-bold mr-2">{i + 1}.</span>
+                        {sentence}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </motion.div>
         </motion.main>
         <ToastContainer />
