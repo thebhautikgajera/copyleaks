@@ -50,7 +50,7 @@ const Home: React.FC = () => {
         const limitedText = words.slice(0, wordLimit).join(" ");
         setText(limitedText);
         toast.warning("You've reached the 500-word limit!", {
-          position: "bottom-right",
+          position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
