@@ -101,7 +101,7 @@ const Home: React.FC = () => {
             >
               AI Detector
             </motion.span>{" "}
-            By Copyleaks
+            By Contentleaks
           </h1>
           <motion.p
             initial={{ y: 20, opacity: 0 }}

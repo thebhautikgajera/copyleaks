@@ -44,7 +44,7 @@ const About = () => {
             variants={itemVariants}
             className="text-6xl font-bold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
           >
-            About AI Content Detection
+            About Contentleaks
           </motion.h1>
           <motion.div
             variants={itemVariants}
@@ -54,21 +54,13 @@ const About = () => {
               variants={itemVariants}
               className="mb-8 text-xl leading-relaxed"
             >
-              We’re a leading AI text analysis platform dedicated to empowering
-              businesses and educational institutions as they navigate the
-              ever-evolving landscape of genAI through responsible AI
-              innovation, balancing technological advancement with integrity,
-              transparency, and ethics.
+              Welcome to Contentleaks, your go-to resource for AI content detection. As digital content evolves, ensuring authenticity is crucial. Our advanced tools help individuals, educators, and businesses identify AI-generated material, promoting transparency and integrity in the online space.
             </motion.p>
             <motion.p
               variants={itemVariants}
               className="mb-8 text-xl leading-relaxed"
             >
-              Since our founding in 2015, we’ve harnessed the power of AI to
-              empower authenticity and originality. With an award-winning suite
-              trusted by millions, we ensure AI governance and responsible AI
-              adoption, safeguard IP, confirm copyright compliance, and maintain
-              academic integrity with comprehensive content detection.
+              Join us in fostering a trustworthy digital environment. Explore our resources and stay informed about the latest in AI technology, empowering you to engage with genuine content.
             </motion.p>
             <motion.h2
               variants={itemVariants}
@@ -106,7 +98,7 @@ const About = () => {
               variants={itemVariants}
               className="text-4xl font-[1500] text-center leading-relaxed"
             >
-              Copyleaks, where technology meets integrity.
+              Contentleaks, where technology meets integrity.
             </motion.h1>
           </motion.div>
         </div>
