@@ -90,9 +90,9 @@ const Home: React.FC = () => {
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-center py-12"
+          className="text-center py-6 md:py-12 lg:py-12 px-4"
         >
-          <h1 className="text-6xl font-bold mb-4">
+          <h1 className="text-4xl md:text-6xl lg:text-6xl font-bold mb-4">
             <motion.span
               initial={{ scale: 0.5 }}
               animate={{ scale: 1 }}
@@ -107,7 +107,7 @@ const Home: React.FC = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-xl max-w-3xl mx-auto"
+            className="text-lg md:text-xl max-w-3xl mx-auto"
           >
             The most accurate AI content detector and ChatGPT checker, trusted
             by top organizations worldwide and backed by{" "}
@@ -127,21 +127,21 @@ const Home: React.FC = () => {
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            className="bg-white text-gray-800 rounded-lg shadow-xl p-8 mb-8"
+            className="bg-white text-gray-800 rounded-lg shadow-xl p-4 md:p-8 mb-8"
           >
-            <h2 className="font-bold text-center text-3xl mb-6">
+            <h2 className="font-bold text-center text-2xl md:text-3xl mb-6">
               Was this text written by a human or AI?
             </h2>
-            <h3 className="text-xl font-semibold mb-4">
+            <h3 className="text-lg md:text-xl font-semibold mb-4">
               Try detecting one of our sample texts:
             </h3>
-            <div className="flex flex-wrap gap-4 mb-6">
+            <div className="flex flex-wrap gap-2 md:gap-4 sm:hidden mb-6">
               {["ChatGPT", "Gemini", "Human", "AI + Human"].map((btn) => (
                 <motion.button
                   key={btn}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full transition duration-300"
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 md:px-4 rounded-full transition duration-300 text-sm md:text-base"
                 >
                   {btn}
                 </motion.button>
@@ -151,18 +151,24 @@ const Home: React.FC = () => {
             <textarea
               value={text}
               onChange={handleChange}
-              rows={10}
-              className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+              rows={8}
+              className="w-full p-3 md:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 text-sm md:text-base resize-none"
               placeholder="Enter your text here (max 500 words)"
+              style={{
+                minHeight: '150px',
+                fontSize: '16px',
+                lineHeight: '1.5',
+                WebkitAppearance: 'none',
+              }}
             />
 
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex sm:flex-col md:flex-row justify-between items-center mt-4 gap-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={genAns}
                 disabled={wordCount === 0 || wordCount >= 500 || isLoading}
-                className={`py-2 px-6 rounded-full text-white font-semibold transition duration-300 ${
+                className={`sm:w-full lg:w-auto md:w-auto py-2 px-6 rounded-full text-white font-semibold transition duration-300 ${
                   wordCount === 0 || wordCount >= 500 || isLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600"
@@ -212,9 +218,9 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.6 }}
-            className="bg-white text-gray-800 rounded-lg shadow-xl p-8"
+            className="bg-white text-gray-800 rounded-lg shadow-xl p-4 md:p-8"
           >
-            <h2 className="text-3xl text-center font-bold mb-6">
+            <h2 className="text-2xl md:text-3xl text-center font-bold mb-6">
               Analysis Report
             </h2>
             {isLoading ? (
@@ -222,10 +228,10 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
-                className="text-center text-xl"
+                className="text-center text-lg md:text-xl"
               >
                 <motion.div
-                  className="inline-block w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full"
+                  className="inline-block w-12 h-12 md:w-16 md:h-16 border-t-4 border-blue-500 border-solid rounded-full"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 1,
@@ -240,18 +246,18 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="text-lg mb-6 p-4 bg-blue-100 rounded-lg"
+                className="text-base md:text-lg mb-6 p-4 bg-blue-100 rounded-lg"
               >
                 {analysisText}
               </motion.p>
             ) : (
-              <p className="text-center text-xl">No analysis available yet. Please enter text and click &apos;Analyze&apos;.</p>
+              <p className="text-center text-lg md:text-xl">No analysis available yet. Please enter text and click &apos;Analyze&apos;.</p>
             )}
             {!isLoading && analysisText && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
                   <div className="bg-gray-100 p-4 rounded-lg">
-                    <h3 className="text-xl font-semibold mb-2">Text Statistics</h3>
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">Text Statistics</h3>
                     <p>
                       Total words: <span className="font-bold">{wordCount}</span>
                     </p>
@@ -261,7 +267,7 @@ const Home: React.FC = () => {
                     </p>
                   </div>
                   <div className="bg-gray-100 p-4 rounded-lg">
-                    <h3 className="text-xl font-semibold mb-2">Content Origin</h3>
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">Content Origin</h3>
                     <p>
                       AI content:{" "}
                       <span className="font-bold text-red-500">
@@ -277,7 +283,7 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">
+                  <h3 className="text-lg md:text-xl font-semibold mb-4">
                     AI-detected sentences:{" "}
                     <span className="font-bold">{sentences.length}</span>
                   </h3>
@@ -288,7 +294,7 @@ const Home: React.FC = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 1.4 + i * 0.1 }}
-                        className="bg-red-100 p-3 rounded-lg"
+                        className="bg-red-100 p-3 rounded-lg text-sm md:text-base"
                       >
                         <span className="font-bold mr-2">{i + 1}.</span>
                         {sentence}

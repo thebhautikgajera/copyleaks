@@ -88,26 +88,26 @@ const Contact = () => {
       >
         <Navbar />
         <motion.div
-          className="container mx-auto px-4 py-20"
+          className="container mx-auto px-4 py-10 md:py-20"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
           <motion.h1
-            className="text-7xl font-extrabold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
+            className="text-4xl md:text-7xl font-extrabold text-center mb-8 md:mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
             variants={itemVariants}
           >
             Get in Touch
           </motion.h1>
           <motion.form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-10 shadow-2xl"
+            className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-10 shadow-2xl"
             variants={containerVariants}
           >
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="name"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiUser className="mr-2" /> Your Name
               </label>
@@ -117,17 +117,17 @@ const Contact = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg"
+                className="w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-base md:text-lg"
                 required
                 placeholder="John Doe"
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
               />
             </motion.div>
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="email"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiMail className="mr-2" /> Your Email
               </label>
@@ -137,17 +137,17 @@ const Contact = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg"
+                className="w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-base md:text-lg"
                 required
                 placeholder="johndoe@example.com"
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
               />
             </motion.div>
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="subject"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiTag className="mr-2" /> Subject
               </label>
@@ -157,17 +157,17 @@ const Contact = () => {
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
-                className="w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg"
+                className="w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-base md:text-lg"
                 required
                 placeholder="Enter subject"
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
               />
             </motion.div>
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="topic"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiList className="mr-2" /> Topic
               </label>
@@ -176,7 +176,7 @@ const Contact = () => {
                 name="topic"
                 value={formData.topic}
                 onChange={handleChange}
-                className="w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg"
+                className="w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-base md:text-lg"
                 required
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
@@ -188,10 +188,10 @@ const Contact = () => {
                 <option value="other">Other</option>
               </motion.select>
             </motion.div>
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="message"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiMessageSquare className="mr-2" /> Your Message
               </label>
@@ -201,34 +201,34 @@ const Contact = () => {
                 value={formData.message}
                 onChange={handleChange}
                 rows={5}
-                className="w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out resize-none text-lg"
+                className="w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out resize-none text-base md:text-lg"
                 required
                 placeholder="Your message here..."
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
               ></motion.textarea>
             </motion.div>
-            <motion.div className="mb-8" variants={itemVariants}>
+            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
               <label
                 htmlFor="attachment"
-                className=" mb-2 text-lg font-medium text-white flex items-center"
+                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
               >
                 <FiPaperclip className="mr-2" /> Attachment
               </label>
               <div {...getRootProps()} className="dropzone">
                 <input {...getInputProps()} />
                 <motion.div
-                  className={`w-full px-5 py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out cursor-pointer ${
+                  className={`w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out cursor-pointer ${
                     isDragActive ? "border-2 border-dashed border-blue-500" : ""
                   }`}
                   whileHover={{ scale: 1.02 }}
                 >
                   {isDragActive ? (
-                    <p className="text-center text-lg">
+                    <p className="text-center text-base md:text-lg">
                       Drop the files here ...
                     </p>
                   ) : (
-                    <p className="text-center text-lg">
+                    <p className="text-center text-base md:text-lg">
                       Drag &apos;n&apos; drop some files here, or click to
                       select files
                     </p>
@@ -243,7 +243,7 @@ const Contact = () => {
             </motion.div>
             <motion.button
               type="submit"
-              className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xl font-bold rounded-lg hover:from-blue-600 hover:to-purple-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="w-full py-3 md:py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg md:text-xl font-bold rounded-lg hover:from-blue-600 hover:to-purple-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               variants={itemVariants}

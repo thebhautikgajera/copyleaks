@@ -39,38 +39,38 @@ const About = () => {
         id="bgPage1About"
       >
         <Navbar />
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 md:py-12 lg:pt-[8vw]">
           <motion.h1
             variants={itemVariants}
-            className="text-6xl font-bold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
+            className="text-6xl md:text-6xl font-bold mb-8 md:mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 leading-tight"
           >
             About Contentleaks
           </motion.h1>
           <motion.div
             variants={itemVariants}
-            className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-10 mb-8 hover:shadow-2xl transition-shadow duration-300"
+            className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-6 md:p-10 mb-8 hover:shadow-2xl transition-shadow duration-300"
           >
             <motion.p
               variants={itemVariants}
-              className="mb-8 text-xl leading-relaxed"
+              className="mb-6 md:mb-8 text-lg md:text-xl leading-relaxed"
             >
               Welcome to Contentleaks, your go-to resource for AI content detection. As digital content evolves, ensuring authenticity is crucial. Our advanced tools help individuals, educators, and businesses identify AI-generated material, promoting transparency and integrity in the online space.
             </motion.p>
             <motion.p
               variants={itemVariants}
-              className="mb-8 text-xl leading-relaxed"
+              className="mb-6 md:mb-8 text-lg md:text-xl leading-relaxed"
             >
               Join us in fostering a trustworthy digital environment. Explore our resources and stay informed about the latest in AI technology, empowering you to engage with genuine content.
             </motion.p>
             <motion.h2
               variants={itemVariants}
-              className="text-4xl font-semibold mb-6 text-blue-300"
+              className="text-3xl md:text-4xl font-semibold mb-6 md:mb-8 lg:mt-[3vw] text-blue-300 text-center"
             >
               Key commitments:
             </motion.h2>
             <motion.ul
               variants={itemVariants}
-              className="list-none pl-6 mb-8 space-y-4"
+              className="list-none pl-0 mb-8 md:mb-10 space-y-4 md:space-y-6"
             >
               {[
                 "Ethical AI development",
@@ -87,16 +87,16 @@ const About = () => {
                 <motion.li
                   key={index}
                   variants={itemVariants}
-                  className="flex items-center text-xl"
+                  className="flex items-center text-base md:text-xl bg-white/5 rounded-lg p-4 transition-all duration-300 hover:bg-white/10"
                 >
-                  <span className="text-pink-400 mr-4">✦</span>
+                  <span className="text-pink-400 mr-4 text-2xl">✦</span>
                   {feature}
                 </motion.li>
               ))}
             </motion.ul>
             <motion.h1
               variants={itemVariants}
-              className="text-4xl font-[1500] text-center leading-relaxed"
+              className="sm:text-2xl md:text-3xl lg:text-3xl font-[1500] text-center leading-relaxed bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-purple-400 to-pink-300"
             >
               Contentleaks, where technology meets integrity.
             </motion.h1>

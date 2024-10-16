@@ -95,7 +95,7 @@ const Pricing: React.FC = () => {
               Choose Your Perfect Plan
             </motion.h2>
             <motion.div
-              className="flex justify-center items-center pb-8 gap-10"
+              className="flex justify-center items-center pb-8 gap-10 sm:flex sm:flex-col sm:justify-center sm:items-center"         
               variants={containerVariants}
             >
               {plans.map((plan, index) => (
