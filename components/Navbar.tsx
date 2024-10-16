@@ -38,7 +38,9 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center p-4 bg-transparent shadow-md relative z-50">
       <div className="flex-shrink-0">
-        <Image src={Logo} alt="Logo" width={320} height={270} />
+        <Link href="/">
+          <Image src={Logo} alt="Logo" width={320} height={270} />
+        </Link>
       </div>
       {isMobile ? (
         <>
