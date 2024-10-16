@@ -78,10 +78,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+      <div
         className="min-h-screen w-full pb-[4vw] text-white bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900"
         id="bgPage1Home"
       >
@@ -307,7 +304,7 @@ const Home: React.FC = () => {
           </motion.div>
         </motion.main>
         <ToastContainer />
-      </motion.div>
+      </div>
       <Footer />
     </>
   );
