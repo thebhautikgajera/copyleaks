@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import Image from "next/image";
-import Logo from  "../assets/logo.png";
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Logo from '../assets/logo.png';
+import { FiMenu, FiX } from 'react-icons/fi';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -14,73 +15,59 @@ const Navbar = () => {
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setIsMenuOpen(false);
-      }
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isMenuOpen]);
+
+  const isActive = (path: string) => pathname === path;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
   return (
-    <nav className="bg-transparent text-white px-4 md:px-[2.5vw] py-4 md:py-[1vw]">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link href="/">
-          <Image src={Logo} height={isMobile ? 220 : 320} width={isMobile ? 200 : 270} alt="Logo" className="transition-all duration-300"/>
-        </Link>
-        {isMobile ? (
-          <button onClick={toggleMenu} className="text-white focus:outline-none md:hidden">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-        ) : (
-          <div className="flex justify-between gap-[2vw] items-center">
-            {['Home', 'About', 'Pricing', 'Contact'].map((item) => (
-              <Link 
-                key={item} 
-                href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 
-                className={`py-[.7vw] px-[2vw] flex items-center gap-[2vw] ${pathname === (item === 'Home' ? '/' : `/${item.toLowerCase()}`) ? 'bg-[#1C2951] rounded-md' : ''} hover:bg-[#2C3961] transition-colors duration-200`}
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
-        )}
+    <nav className="flex justify-between items-center p-4 bg-transparent shadow-md relative z-50">
+      <div className="flex-shrink-0">
+        <Image src={Logo} alt="Logo" width={320} height={270} />
       </div>
-      {isMobile && (
-        <div className={`${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'} md:hidden overflow-hidden transition-all duration-300 ease-in-out`}>
-          <div className="bg-[#1C2951] mt-4">
-            {['Home', 'About', 'Pricing', 'Contact'].map((item) => (
-              <Link 
-                key={item} 
-                href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 
-                onClick={closeMenu}
-                className={`block py-2 px-4 ${pathname === (item === 'Home' ? '/' : `/${item.toLowerCase()}`) ? 'bg-[#2C3961]' : ''} hover:bg-[#2C3961] transition-colors duration-200`}
-              >
-                {item}
-              </Link>
-            ))}
+      {isMobile ? (
+        <>
+          <button onClick={toggleMenu} className="text-white z-50">
+            {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
+          <div className={`fixed inset-0 bg-indigo-900 bg-opacity-95 z-40 transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className="flex flex-col justify-center items-center h-full">
+              <Link href="/" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Home</Link>
+              <Link href="/about" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/about') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>About</Link>
+              <Link href="/pricing" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/pricing') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Pricing</Link>
+              <Link href="/contact" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/contact') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Contact Us</Link>
+              <Link href="/signup" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/signup') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Sign Up</Link>
+              <Link href="/login" className={`block px-4 py-2 text-2xl ${isActive('/login') ? 'bg-white bg-opacity-20 font-bold' : 'bg-blue-600 text-white'}`} onClick={toggleMenu}>Login</Link>
+            </div>
           </div>
+        </>
+      ) : (
+        <div className="flex items-center space-x-6">
+          <Link href="/" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Home</Link>
+          <Link href="/about" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/about') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>About</Link>
+          <Link href="/pricing" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
+          <Link href="/contact" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact Us</Link>
+          <Link href="/signup" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/signup') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Sign Up</Link>
+          <Link href="/login" className={`text-[1.3vw] px-4 py-2 rounded ${isActive('/login') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>Login</Link>
         </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
