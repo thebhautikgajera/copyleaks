@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import axios from "axios";
+import { useRouter } from 'next/navigation';
+import { ClipLoader } from "react-spinners";
 
 const Signup = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -16,6 +18,19 @@ const Signup = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (isRedirecting) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRedirecting, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,10 +40,47 @@ const Signup = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log(formData);
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post('/api/signup', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 201) {
+        // console.log('User registered successfully:', response.data);
+        setSuccess('Account created successfully! Redirecting to login page...');
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setIsRedirecting(true);
+      } else {
+        setError('Failed to register user');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || 'Something went wrong');
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -65,7 +117,6 @@ const Signup = () => {
         className="min-h-screen w-full pb-[4vw] text-white bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900"
         id="bgPage1Contact"
       >
-        <Navbar />
         <div className="flex justify-center items-center min-h-screen px-4 py-8">
           <motion.div
             className="bg-white/10 backdrop-blur-md p-6 sm:p-10 rounded-3xl shadow-2xl w-full max-w-[450px]"
@@ -79,6 +130,22 @@ const Signup = () => {
             >
               Join Us
             </motion.h2>
+            {error && (
+              <motion.p
+                className="text-red-500 text-sm mb-4 text-center"
+                variants={itemVariants}
+              >
+                {error}
+              </motion.p>
+            )}
+            {success && (
+              <motion.p
+                className="text-green-500 text-sm mb-4 text-center"
+                variants={itemVariants}
+              >
+                {success}
+              </motion.p>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <motion.div variants={itemVariants}>
                 <label
@@ -216,12 +283,17 @@ const Signup = () => {
               </motion.div>
               <motion.button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg text-base sm:text-lg font-bold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg text-base sm:text-lg font-bold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg flex justify-center items-center"
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                disabled={isLoading || isRedirecting}
               >
-                Create Account
+                {isLoading || isRedirecting ? (
+                  <ClipLoader color="#ffffff" size={24} />
+                ) : (
+                  "Create Account"
+                )}
               </motion.button>
             </form>
             <motion.p 
@@ -232,7 +304,6 @@ const Signup = () => {
             </motion.p>
           </motion.div>
         </div>
-        <Footer />
       </div>
     </>
   );
