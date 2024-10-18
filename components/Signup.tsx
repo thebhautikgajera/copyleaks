@@ -60,7 +60,6 @@ const Signup = () => {
       });
 
       if (response.status === 201) {
-        // console.log('User registered successfully:', response.data);
         setSuccess('Account created successfully! Redirecting to login page...');
         setFormData({
           username: "",
