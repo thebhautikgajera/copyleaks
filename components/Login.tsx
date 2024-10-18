@@ -174,6 +174,11 @@ const Login = () => {
                 </button>
               </div>
             </motion.div>
+            <motion.div className="mb-6 sm:mb-8 text-right" variants={itemVariants}>
+              <a href="/forgot-password" className="text-blue-400 hover:text-blue-300 transition duration-300 text-sm sm:text-base">
+                Forgot Password?
+              </a>
+            </motion.div>
             <motion.button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105 text-base sm:text-lg font-bold flex items-center justify-center"
