@@ -7,20 +7,22 @@ export async function POST(req: Request) {
     try {
         await dbConnect();
 
-        const { email, password } = await req.json();
+        const { emailOrUsername, password } = await req.json();
 
-        // Find user by email
-        const user = await SignUp.findOne({ email });
+        // Find user by email or username
+        const user = await SignUp.findOne({
+            $or: [{ email: emailOrUsername }, { username: emailOrUsername }]
+        });
 
         if (!user) {
-            return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
+            return NextResponse.json({ message: 'Invalid email/username or password' }, { status: 401 });
         }
 
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
+            return NextResponse.json({ message: 'Invalid email/username or password' }, { status: 401 });
         }
 
         // Login successful
@@ -30,4 +32,3 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
     }
 }
-

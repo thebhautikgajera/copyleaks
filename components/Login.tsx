@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiMail, FiLock, FiLogIn, FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiLock, FiLogIn, FiEye, FiEyeOff, FiUser } from 'react-icons/fi'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { ClipLoader } from "react-spinners"
@@ -10,7 +10,7 @@ import { ClipLoader } from "react-spinners"
 const Login = () => {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    email: '',
+    emailOrUsername: '',
     password: '',
   })
   const [showPassword, setShowPassword] = useState(false)
@@ -45,7 +45,7 @@ const Login = () => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Invalid email or password')
+        setError(error.response?.data?.message || 'Invalid email/username or password')
       } else {
         setError('An unexpected error occurred')
       }
@@ -109,20 +109,20 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <motion.div className="mb-4 sm:mb-6" variants={itemVariants}>
               <label
-                htmlFor="email"
+                htmlFor="emailOrUsername"
                 className="block text-white text-base sm:text-lg font-bold mb-2 flex items-center"
               >
-                <FiMail className="mr-2 text-blue-400" /> Email
+                <FiUser className="mr-2 text-blue-400" /> Email or Username
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                id="emailOrUsername"
+                name="emailOrUsername"
+                value={formData.emailOrUsername}
                 onChange={handleChange}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-base sm:text-lg"
                 required
-                placeholder="your@email.com"
+                placeholder="Email or Username"
               />
             </motion.div>
             <motion.div className="mb-6 sm:mb-8" variants={itemVariants}>
