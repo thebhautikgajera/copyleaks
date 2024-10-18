@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FiMail, FiArrowRight, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiMail, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi'
 import axios from 'axios'
 import { ClipLoader } from "react-spinners"
 
