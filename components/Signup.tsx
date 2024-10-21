@@ -68,6 +68,17 @@ const Signup = () => {
           confirmPassword: "",
         });
         setIsRedirecting(true);
+
+        // Add all data to MongoDB database
+        try {
+          await axios.post('/api/addUserData', formData, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.error('Error adding user data to database:', error);
+        }
       } else {
         setError('Failed to register user');
       }
