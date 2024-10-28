@@ -2,20 +2,21 @@
 import React, { useState, useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import Navbar from "./Navbar";
+import NavbarBeforeLogin from "./NavbarBeforeLogin";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
 
-const Home: React.FC = () => {
+const HomeBeforeLogin: React.FC = () => {
   const [text, setText] = useState("");
-  const [aiGenWords, setAiGenWords] = useState("0");
-  const [fakePercentage, setFakePercentage] = useState("0");
-  const [humanPercentage, setHumanPercentage] = useState("100");
-  const [sentences, setSentences] = useState([]);
-  const [analysisText, setAnalysisText] = useState("");
+  const [aiGenWords] = useState("0");
+  const [fakePercentage] = useState("0");
+  const [humanPercentage] = useState("100");
+  const [sentences] = useState([]);
+  const [analysisText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const genAns = async () => {
     if (text.trim() === "") {
@@ -34,30 +35,28 @@ const Home: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_API_URL ?? '',
-        { text },
-        {
-          headers: {
-            "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY ?? '',
-            "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPIDAPI_HOST,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const { aiWords, fakePercentage, sentences } = response.data;
-      setAiGenWords(aiWords);
-      setFakePercentage(fakePercentage);
-      setHumanPercentage((100 - parseFloat(fakePercentage)).toFixed(2));
-      setSentences(sentences);
+      // Simulate analysis process
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const analysisResult = `Based on our analysis, ${fakePercentage}% of the content appears to be AI-generated. We detected ${aiWords} AI-generated words out of a total of ${text.trim().split(/\s+/).length} words. ${sentences.length} sentences were flagged as potentially AI-written.`;
-      setAnalysisText(analysisResult);
+      toast.warn("Please Login to continue...", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      // Wait for toast to be visible
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // Redirect to login page
+      router.push('/login');
     } catch (error: unknown) {
-      console.error('Error during analysis:', error);
-      setAnalysisText('An error occurred during the analysis. Please try again.');
-      toast.error('Failed to analyze the text. Please try again.', {
+      console.error('Error during analysis or redirection:', error);
+      toast.error('An error occurred. Please try again.', {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -106,7 +105,7 @@ const Home: React.FC = () => {
         className="min-h-screen w-full pb-[4vw] text-white bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900"
         id="bgPage1Home"
       >
-        <Navbar />
+        <NavbarBeforeLogin />
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -301,4 +300,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default HomeBeforeLogin;
