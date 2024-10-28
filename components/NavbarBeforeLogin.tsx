@@ -64,8 +64,12 @@ const NavbarBeforeLogin = () => {
           <Link href="/about-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/about-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>About</Link>
           <Link href="/pricing-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
           <Link href="/contact-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact</Link>
-          <Link href="/login" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/login') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Login</Link>
-          <Link href="/register" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/register') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Sign Up</Link>
+          <Link href="/login">
+            <button className="text-[1.3vw] px-8 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:scale-105 active:scale-95 font-semibold">Login</button>
+          </Link>
+          <Link href="/register">
+            <button className="text-[1.3vw] px-8 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded transition-all duration-300 shadow-lg hover:shadow-green-500/50 hover:scale-105 active:scale-95 font-semibold">Sign Up</button>
+          </Link>
         </div>
       )}
     </nav>

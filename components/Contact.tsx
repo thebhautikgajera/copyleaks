@@ -1,17 +1,15 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
-import { useDropzone } from "react-dropzone";
 import {
   FiUser,
   FiMail,
   FiMessageSquare,
   FiTag,
   FiList,
-  FiPaperclip,
 } from "react-icons/fi";
 
 const Contact = () => {
@@ -21,7 +19,6 @@ const Contact = () => {
     subject: "",
     topic: "",
     message: "",
-    attachment: null as File | null,
   });
 
   const handleChange = (
@@ -36,15 +33,6 @@ const Contact = () => {
     }));
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      attachment: acceptedFiles[0],
-    }));
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
@@ -54,7 +42,6 @@ const Contact = () => {
       subject: "",
       topic: "",
       message: "",
-      attachment: null,
     });
   };
 
@@ -207,39 +194,6 @@ const Contact = () => {
                 whileHover={{ scale: 1.02 }}
                 whileFocus={{ scale: 1.02 }}
               ></motion.textarea>
-            </motion.div>
-            <motion.div className="mb-6 md:mb-8" variants={itemVariants}>
-              <label
-                htmlFor="attachment"
-                className="mb-2 text-base md:text-lg font-medium text-white flex items-center"
-              >
-                <FiPaperclip className="mr-2" /> Attachment
-              </label>
-              <div {...getRootProps()} className="dropzone">
-                <input {...getInputProps()} />
-                <motion.div
-                  className={`w-full px-4 py-3 md:px-5 md:py-4 text-white bg-[#1C2951] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out cursor-pointer ${
-                    isDragActive ? "border-2 border-dashed border-blue-500" : ""
-                  }`}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  {isDragActive ? (
-                    <p className="text-center text-base md:text-lg">
-                      Drop the files here ...
-                    </p>
-                  ) : (
-                    <p className="text-center text-base md:text-lg">
-                      Drag &apos;n&apos; drop some files here, or click to
-                      select files
-                    </p>
-                  )}
-                </motion.div>
-              </div>
-              {formData.attachment && (
-                <p className="mt-2 text-sm text-blue-200">
-                  File: {formData.attachment.name}
-                </p>
-              )}
             </motion.div>
             <motion.button
               type="submit"

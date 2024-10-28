@@ -89,7 +89,11 @@ const Navbar = () => {
               <Link href="/about" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/about') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>About</Link>
               <Link href="/pricing" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/pricing') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Pricing</Link>
               <Link href="/contact" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/contact') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Contact Us</Link>
-              <button onClick={handleLogout} disabled={isLoggingOut} className="flex items-center px-4 py-2 text-2xl text-white hover:bg-white hover:bg-opacity-20">
+              <button 
+                onClick={handleLogout} 
+                disabled={isLoggingOut} 
+                className="flex items-center px-6 py-3 text-2xl text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-red-500/30 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isLoggingOut ? <ClipLoader color="#ffffff" size={24} /> : <><FiLogOut className="mr-2" /> Logout</>}
               </button>
             </div>
@@ -102,7 +106,11 @@ const Navbar = () => {
           <Link href="/about" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/about') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>About</Link>
           <Link href="/pricing" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
           <Link href="/contact" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact Us</Link>
-          <button onClick={handleLogout} disabled={isLoggingOut} className="flex items-center text-[1.3vw] px-3 py-1 rounded text-white hover:bg-white hover:bg-opacity-20">
+          <button 
+            onClick={handleLogout} 
+            disabled={isLoggingOut} 
+            className="flex items-center text-[1.3vw] px-6 py-2.5 text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:scale-105 active:scale-95 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {isLoggingOut ? <ClipLoader color="#ffffff" size={20} /> : <>Logout <FiLogOut className="ml-3" /></>}
           </button>
         </div>
