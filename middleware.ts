@@ -28,10 +28,5 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/home',
-    '/about',
-    '/pricing',
-    '/contact',
-    '/login',
-    '/register',
   ],
 };
