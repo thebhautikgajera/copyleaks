@@ -133,6 +133,23 @@ const HomeBeforeLogin: React.FC = () => {
 
   const sampleTexts = ["ChatGPT", "Gemini", "Human", "AI + Human"];
 
+  const handleSampleText = (type: string) => {
+    switch(type) {
+      case "ChatGPT":
+        setText("As an AI language model, I find the concept of consciousness fascinating. While I can process information and generate responses, the question of whether I truly 'experience' or 'understand' in the way humans do remains a complex philosophical debate. I can analyze patterns, generate text, and engage in conversations, but my responses are based on training data and algorithms rather than genuine emotional or conscious experiences. This raises interesting questions about the nature of intelligence, consciousness, and what it truly means to 'think' or 'feel'.");
+        break;
+      case "Gemini":
+        setText("The integration of quantum computing with artificial intelligence represents a groundbreaking frontier in technology. By leveraging quantum mechanical phenomena like superposition and entanglement, quantum computers can potentially solve complex problems exponentially faster than classical computers. This convergence could revolutionize fields ranging from drug discovery to climate modeling, while raising important questions about computational limits and technological ethics.");
+        break;
+      case "Human":
+        setText("Last summer, I decided to hike the Pacific Crest Trail alone. The experience was both terrifying and exhilarating. Every morning, I woke up to different challenges - sometimes it was the harsh weather, other times the treacherous terrain. But what I remember most vividly are the people I met along the way. Their stories, their kindness, and their determination changed my perspective on life forever. The trail taught me more about myself than any book or classroom ever could.");
+        break;
+      case "AI + Human":
+        setText("While AI wrote the technical analysis of climate change data, I added personal observations from my years as an environmental scientist. The resulting report combined AI's ability to process vast amounts of data with human insights and emotional context. The AI highlighted concerning trends in global temperature rises, while I contributed first-hand accounts of changing ecosystems in the Amazon rainforest. This collaboration produced a more comprehensive and engaging document than either could have created alone.");
+        break;
+    }
+  };
+
   return (
     <>
       <div
@@ -189,13 +206,14 @@ const HomeBeforeLogin: React.FC = () => {
             <h3 className="text-lg md:text-xl font-semibold mb-4">
               Try detecting one of our sample texts:
             </h3>
-            <div className="flex flex-wrap gap-2 md:gap-4 sm:hidden mb-6">
+            <div className="flex flex-wrap gap-3 md:gap-5 sm:hidden mb-8">
               {sampleTexts.map((btn) => (
                 <motion.button
                   key={btn}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 md:px-4 rounded-full transition duration-300 text-sm md:text-base"
+                  onClick={() => handleSampleText(btn)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 px-4 md:px-6 rounded-full transition-all duration-300 text-sm md:text-base font-medium shadow-lg hover:shadow-blue-500/30 hover:from-blue-600 hover:to-blue-700 active:scale-95"
                 >
                   {btn}
                 </motion.button>
