@@ -173,7 +173,7 @@ const Register = () => {
   return (
     <div 
       ref={gradientRef} 
-      className="min-h-screen flex items-center justify-center relative transition-all duration-[30000ms] ease-in-out"
+      className="min-h-screen flex items-center justify-center relative transition-all duration-[30000ms] ease-in-out px-4 sm:px-6 lg:px-8"
       style={{
         background: `linear-gradient(to bottom right, ${bgColor.from}, ${bgColor.to})`,
       }}
@@ -183,13 +183,13 @@ const Register = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white bg-opacity-90 p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 backdrop-filter backdrop-blur-sm"
+        className="bg-white bg-opacity-90 p-6 sm:p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 backdrop-filter backdrop-blur-sm mx-auto"
       >
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-4xl font-extrabold text-center text-gray-800 mb-8"
+          className="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-6 sm:mb-8"
         >
           Join Us
         </motion.h2>
@@ -198,7 +198,7 @@ const Register = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           onSubmit={handleSubmit}
-          className="space-y-6"
+          className="space-y-4 sm:space-y-6"
         >
           <motion.div 
             className="relative"
@@ -212,7 +212,7 @@ const Register = () => {
               name="username"
               type="text"
               required
-              className="w-full pl-10 pr-3 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300"
+              className="w-full pl-10 pr-3 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300 text-sm sm:text-base"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -231,7 +231,7 @@ const Register = () => {
               type="email"
               autoComplete="email"
               required
-              className="w-full pl-10 pr-3 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300"
+              className="w-full pl-10 pr-3 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300 text-sm sm:text-base"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -250,7 +250,7 @@ const Register = () => {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               required
-              className="w-full pl-10 pr-10 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300"
+              className="w-full pl-10 pr-10 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300 text-sm sm:text-base"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -276,7 +276,7 @@ const Register = () => {
               type={showConfirmPassword ? "text" : "password"}
               autoComplete="new-password"
               required
-              className="w-full pl-10 pr-10 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300"
+              className="w-full pl-10 pr-10 py-3 border-b-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all duration-300 text-sm sm:text-base"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -296,7 +296,7 @@ const Register = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="text-center text-sm text-red-600 bg-red-100 p-2 rounded-md"
+                className="text-center text-xs sm:text-sm text-red-600 bg-red-100 p-2 rounded-md"
               >
                 {error}
               </motion.p>
@@ -308,7 +308,7 @@ const Register = () => {
             disabled={isLoading}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
+            className="w-full py-2.5 sm:py-3 px-4 border border-transparent rounded-md shadow-sm text-base sm:text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
           >
             {isLoading ? <ClipLoader color="#ffffff" size={20} /> : "Create Account"}
           </motion.button>
@@ -317,9 +317,9 @@ const Register = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-6 text-center"
+          className="mt-4 sm:mt-6 text-center"
         >
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600">
             Already have an account?{" "}
             <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
               Log in

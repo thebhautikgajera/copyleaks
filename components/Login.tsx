@@ -189,7 +189,7 @@ const Login = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white bg-opacity-90 p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 backdrop-filter backdrop-blur-sm"
+        className="bg-white bg-opacity-90 p-10 rounded-2xl shadow-2xl w-[90%] md:w-[70%] lg:w-[40%] max-w-md relative z-10 backdrop-filter backdrop-blur-sm mx-4"
       >
         <motion.h2
           initial={{ opacity: 0 }}
