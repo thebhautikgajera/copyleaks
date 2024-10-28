@@ -7,65 +7,91 @@ import Footer from "./Footer";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
+import axios from "axios";
 
 const HomeBeforeLogin: React.FC = () => {
   const [text, setText] = useState("");
-  const [aiGenWords] = useState("0");
-  const [fakePercentage] = useState("0");
-  const [humanPercentage] = useState("100");
-  const [sentences] = useState([]);
-  const [analysisText] = useState("");
+  const [aiGenWords, setAiGenWords] = useState("0");
+  const [fakePercentage, setFakePercentage] = useState("0");
+  const [humanPercentage, setHumanPercentage] = useState("100");
+  const [sentences, setSentences] = useState<string[]>([]);
+  const [analysisText, setAnalysisText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const router = useRouter();
 
-  const genAns = async () => {
+  const wordLimit = 500;
+  const minWords = 50;
+
+  const showToast = (type: 'error' | 'warn' | 'success', message: string, autoClose = 3000) => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  const validateText = (wordCount: number): boolean => {
     if (text.trim() === "") {
-      toast.error("Please enter some text before analyzing.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-      return;
+      showToast('error', "Please enter some text before analyzing.");
+      return false;
     }
+
+    if (wordCount < minWords) {
+      showToast('error', `Please enter at least ${minWords} words for analysis.`);
+      return false;
+    }
+
+    if (hasAnalyzed) {
+      showToast('warn', "Please login to analyze more text!");
+      setTimeout(() => router.push('/login'), 3000);
+      return false;
+    }
+
+    return true;
+  };
+
+  const genAns = async () => {
+    const wordCount = text.trim().split(/\s+/).length;
+    
+    if (!validateText(wordCount)) return;
 
     setIsLoading(true);
     try {
-      // Simulate analysis process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL ?? '',
+        { text },
+        {
+          headers: {
+            "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY ?? '',
+            "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPIDAPI_HOST,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const { aiWords, fakePercentage: fakePercent, sentences: detectedSentences } = response.data;
       
-      toast.warn("Please Login to continue...", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      setAiGenWords(aiWords);
+      setFakePercentage(fakePercent);
+      setHumanPercentage((100 - parseFloat(fakePercent)).toFixed(2));
+      setSentences(detectedSentences);
+      
+      const analysisResult = `Based on our analysis, ${fakePercent}% of the content appears to be AI-generated. We detected ${aiWords} AI-generated words out of a total of ${wordCount} words. ${detectedSentences.length} sentences were flagged as potentially AI-written.`;
+      setAnalysisText(analysisResult);
+      setHasAnalyzed(true);
+      
+      showToast('success', "Analysis complete! Login to analyze more text.", 5000);
 
-      // Wait for toast to be visible
-      await new Promise(resolve => setTimeout(resolve, 5000));
-
-      // Redirect to login page
-      router.push('/login');
     } catch (error: unknown) {
-      console.error('Error during analysis or redirection:', error);
-      toast.error('An error occurred. Please try again.', {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      console.error('Error during analysis:', error);
+      setAnalysisText('An error occurred during the analysis. Please try again.');
+      showToast('error', 'Failed to analyze the text. Please try again.', 5000);
     } finally {
       setIsLoading(false);
     }
@@ -81,23 +107,15 @@ const HomeBeforeLogin: React.FC = () => {
       } else {
         const limitedText = words.slice(0, wordLimit).join(" ");
         setText(limitedText);
-        toast.error("You've reached the 500 word limit!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        showToast('error', `You've reached the ${wordLimit} word limit!`);
       }
     },
     []
   );
 
   const wordCount = text.trim().split(/\s+/).length;
-  const wordLimit = 500;
+
+  const sampleTexts = ["ChatGPT", "Gemini", "Human", "AI + Human"];
 
   return (
     <>
@@ -156,7 +174,7 @@ const HomeBeforeLogin: React.FC = () => {
               Try detecting one of our sample texts:
             </h3>
             <div className="flex flex-wrap gap-2 md:gap-4 sm:hidden mb-6">
-              {["ChatGPT", "Gemini", "Human", "AI + Human"].map((btn) => (
+              {sampleTexts.map((btn) => (
                 <motion.button
                   key={btn}
                   whileHover={{ scale: 1.05 }}
@@ -173,9 +191,9 @@ const HomeBeforeLogin: React.FC = () => {
               onChange={handleChange}
               rows={8}
               className="w-full p-3 md:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 text-sm md:text-base resize-none"
-              placeholder="Enter your text here (max 500 words)"
+              placeholder={`Enter your text here (minimum ${minWords} words, maximum ${wordLimit} words)`}
               style={{
-                minHeight: '150px',
+                minHeight: '50px',
                 fontSize: '16px',
                 lineHeight: '1.5',
                 WebkitAppearance: 'none',
@@ -187,9 +205,9 @@ const HomeBeforeLogin: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={genAns}
-                disabled={wordCount === 0 || wordCount >= 500 || isLoading}
+                disabled={wordCount < minWords || wordCount >= wordLimit || isLoading}
                 className={`sm:w-full lg:w-auto md:w-auto py-2 px-6 rounded-full text-white font-semibold transition duration-300 ${
-                  wordCount === 0 || wordCount >= 500 || isLoading
+                  wordCount < minWords || wordCount >= wordLimit || isLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600"
                 }`}
@@ -199,15 +217,15 @@ const HomeBeforeLogin: React.FC = () => {
                     <ClipLoader color="#ffffff" loading={true} size={20} />
                     <span className="ml-2">Analyzing...</span>
                   </div>
-                ) : wordCount === 0
-                  ? "Enter text"
-                  : wordCount >= 500
+                ) : wordCount < minWords
+                  ? `Enter at least ${minWords} words`
+                  : wordCount >= wordLimit
                   ? "Limit Reached!"
                   : "Analyze"}
               </motion.button>
               <p
                 className={`font-medium ${
-                  wordCount >= 500 ? "text-red-500" : "text-gray-600"
+                  wordCount >= wordLimit ? "text-red-500" : wordCount < minWords ? "text-yellow-500" : "text-gray-600"
                 }`}
               >
                 Word count: {wordCount} / {wordLimit}
