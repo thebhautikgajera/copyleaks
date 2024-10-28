@@ -2,44 +2,82 @@
 import React, { useState, useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners";
+import axios from "axios";
 
 const Home: React.FC = () => {
   const [text, setText] = useState("");
   const [aiGenWords, setAiGenWords] = useState("0");
   const [fakePercentage, setFakePercentage] = useState("0");
   const [humanPercentage, setHumanPercentage] = useState("100");
-  const [sentences, setSentences] = useState([]);
+  const [sentences, setSentences] = useState<string[]>([]);
   const [analysisText, setAnalysisText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  const wordLimit = 500;
+  const minWords = 50;
+
+  const showToast = (
+    type: "error" | "warn" | "success",
+    message: string,
+    autoClose = 3000
+  ) => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  const validateText = (wordCount: number): boolean => {
+    if (text.trim() === "") {
+      showToast("error", "Please enter some text before analyzing.");
+      return false;
+    }
+
+    if (wordCount < minWords) {
+      showToast(
+        "error",
+        `Please enter at least ${minWords} words for analysis.`
+      );
+      return false;
+    }
+
+    if (hasAnalyzed) {
+      showToast(
+        "warn",
+        "You've already analyzed this text. Please modify it or enter new text."
+      );
+      return false;
+    }
+
+    return true;
+  };
 
   const genAns = async () => {
-    if (text.trim() === "") {
-      toast.error("Please enter some text before analyzing.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+    const wordCount = text.trim().split(/\s+/).length;
+
+    if (!validateText(wordCount)) {
       return;
     }
 
     setIsLoading(true);
     try {
       const response = await axios.post(
-        process.env.NEXT_PUBLIC_API_URL ?? '',
+        process.env.NEXT_PUBLIC_API_URL ?? "",
         { text },
         {
           headers: {
-            "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY ?? '',
+            "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY ?? "",
             "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPIDAPI_HOST,
             "Content-Type": "application/json",
           },
@@ -51,22 +89,16 @@ const Home: React.FC = () => {
       setFakePercentage(fakePercentage);
       setHumanPercentage((100 - parseFloat(fakePercentage)).toFixed(2));
       setSentences(sentences);
-      
-      const analysisResult = `Based on our analysis, ${fakePercentage}% of the content appears to be AI-generated. We detected ${aiWords} AI-generated words out of a total of ${text.trim().split(/\s+/).length} words. ${sentences.length} sentences were flagged as potentially AI-written.`;
+      setHasAnalyzed(true);
+
+      const analysisResult = `Based on our analysis, ${fakePercentage}% of the content appears to be AI-generated. We detected ${aiWords} AI-generated words out of a total of ${wordCount} words. ${sentences.length} sentences were flagged as potentially AI-written.`;
       setAnalysisText(analysisResult);
     } catch (error: unknown) {
-      console.error('Error during analysis:', error);
-      setAnalysisText('An error occurred during the analysis. Please try again.');
-      toast.error('Failed to analyze the text. Please try again.', {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      console.error("Error during analysis:", error);
+      setAnalysisText(
+        "An error occurred during the analysis. Please try again."
+      );
+      showToast("error", "Failed to analyze the text. Please try again.", 5000);
     } finally {
       setIsLoading(false);
     }
@@ -79,26 +111,17 @@ const Home: React.FC = () => {
 
       if (words.length <= wordLimit) {
         setText(inputText);
+        setHasAnalyzed(false);
       } else {
         const limitedText = words.slice(0, wordLimit).join(" ");
         setText(limitedText);
-        toast.error("You've reached the 500 word limit!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        showToast("error", "You've reached the 500 word limit!");
       }
     },
     []
   );
 
   const wordCount = text.trim().split(/\s+/).length;
-  const wordLimit = 500;
 
   return (
     <>
@@ -173,13 +196,14 @@ const Home: React.FC = () => {
               value={text}
               onChange={handleChange}
               rows={8}
+              minLength={50}
               className="w-full p-3 md:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 text-sm md:text-base resize-none"
-              placeholder="Enter your text here (max 500 words)"
+              placeholder="Please enter at least 50 words of text to analyze. You can write up to 500 words. Try pasting an article, essay, or any content you'd like to check for AI detection."
               style={{
-                minHeight: '150px',
-                fontSize: '16px',
-                lineHeight: '1.5',
-                WebkitAppearance: 'none',
+                minHeight: "150px",
+                fontSize: "16px",
+                lineHeight: "1.5",
+                WebkitAppearance: "none",
               }}
             />
 
@@ -188,9 +212,9 @@ const Home: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={genAns}
-                disabled={wordCount === 0 || wordCount >= 500 || isLoading}
+                disabled={wordCount < 50 || wordCount >= 500 || isLoading}
                 className={`sm:w-full lg:w-auto md:w-auto py-2 px-6 rounded-full text-white font-semibold transition duration-300 ${
-                  wordCount === 0 || wordCount >= 500 || isLoading
+                  wordCount < 50 || wordCount >= 500 || isLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600"
                 }`}
@@ -200,11 +224,13 @@ const Home: React.FC = () => {
                     <ClipLoader color="#ffffff" loading={true} size={20} />
                     <span className="ml-2">Analyzing...</span>
                   </div>
-                ) : wordCount === 0
-                  ? "Enter text"
-                  : wordCount >= 500
-                  ? "Limit Reached!"
-                  : "Analyze"}
+                ) : wordCount < 50 ? (
+                  "Min 50 words"
+                ) : wordCount >= 500 ? (
+                  "Limit Reached!"
+                ) : (
+                  "Analyze"
+                )}
               </motion.button>
               <p
                 className={`font-medium ${
@@ -239,15 +265,21 @@ const Home: React.FC = () => {
                 {analysisText}
               </motion.p>
             ) : (
-              <p className="text-center text-lg md:text-xl">No analysis available yet. Please enter text and click &apos;Analyze&apos;.</p>
+              <p className="text-center text-lg md:text-xl">
+                No analysis available yet. Please enter text and click
+                &apos;Analyze&apos;.
+              </p>
             )}
             {!isLoading && analysisText && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
                   <div className="bg-gray-100 p-4 rounded-lg">
-                    <h3 className="text-lg md:text-xl font-semibold mb-2">Text Statistics</h3>
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">
+                      Text Statistics
+                    </h3>
                     <p>
-                      Total words: <span className="font-bold">{wordCount}</span>
+                      Total words:{" "}
+                      <span className="font-bold">{wordCount}</span>
                     </p>
                     <p>
                       AI-generated words:{" "}
@@ -255,7 +287,9 @@ const Home: React.FC = () => {
                     </p>
                   </div>
                   <div className="bg-gray-100 p-4 rounded-lg">
-                    <h3 className="text-lg md:text-xl font-semibold mb-2">Content Origin</h3>
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">
+                      Content Origin
+                    </h3>
                     <p>
                       AI content:{" "}
                       <span className="font-bold text-red-500">
