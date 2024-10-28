@@ -54,10 +54,10 @@ const NavbarBeforeLogin = () => {
               <Link href="/pricing-page" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/pricing-page') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Pricing</Link>
               <Link href="/contact-page" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/contact-page') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Contact</Link>
               <Link href="/login" passHref>
-                <button className="block px-6 py-2 text-2xl mb-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition duration-300">Login</button>
+                <button className="block px-8 py-3 text-2xl mb-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300 font-semibold">Login</button>
               </Link>
               <Link href="/register" passHref>
-                <button className="block px-6 py-2 text-2xl mb-4 bg-green-500 hover:bg-green-600 text-white rounded-full transition duration-300">Sign Up</button>
+                <button className="block px-8 py-3 text-2xl mb-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-lg hover:shadow-green-500/30 hover:scale-105 transition-all duration-300 font-semibold">Sign Up</button>
               </Link>
             </div>
           </div>
@@ -69,10 +69,10 @@ const NavbarBeforeLogin = () => {
           <Link href="/pricing-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
           <Link href="/contact-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact</Link>
           <Link href="/login" passHref>
-            <button className="text-[1.3vw] px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition duration-300">Login</button>
+            <button className="text-[1.3vw] px-8 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300 font-semibold">Login</button>
           </Link>
           <Link href="/register" passHref>
-            <button className="text-[1.3vw] px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition duration-300">Sign Up</button>
+            <button className="text-[1.3vw] px-8 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-lg hover:shadow-green-500/30 hover:scale-105 transition-all duration-300 font-semibold">Sign Up</button>
           </Link>
         </div>
       )}
