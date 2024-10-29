@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
 import NavbarBeforeLogin from "./NavbarBeforeLogin";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   FiUser,
   FiMail,
@@ -36,11 +38,46 @@ const ContactBeforeLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Validate form fields
+    if (!formData.name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    if (!formData.subject.trim()) {
+      toast.error("Please enter a subject");
+      return;
+    }
+    if (!formData.topic) {
+      toast.error("Please select a topic");
+      return;
+    }
+    if (!formData.message.trim()) {
+      toast.error("Please enter your message");
+      return;
+    }
+    if (formData.message.length < 10) {
+      toast.error("Message must be at least 10 characters long");
+      return;
+    }
+    if (formData.message.length > 1000) {
+      toast.error("Message cannot exceed 1000 characters");
+      return;
+    }
+    
     try {
       const response = await axios.post('/api/contact', formData);
 
       if (response.status === 200) {
-        console.log('Message sent successfully');
+        toast.success('Message sent successfully! We will get back to you soon.');
         setFormData({
           name: "",
           email: "",
@@ -50,6 +87,21 @@ const ContactBeforeLogin = () => {
         });
       }
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<{error: string}>;
+        if (axiosError.response) {
+          // Server responded with error
+          toast.error(axiosError.response.data.error || 'Failed to send message. Please try again.');
+        } else if (axiosError.request) {
+          // Request made but no response
+          toast.error('Network error. Please check your internet connection and try again.');
+        } else {
+          // Other errors
+          toast.error('An unexpected error occurred. Please try again later.');
+        }
+      } else {
+        toast.error('Something went wrong. Please try again later.');
+      }
       console.error('Error sending message:', error);
     }
   };
@@ -83,6 +135,18 @@ const ContactBeforeLogin = () => {
         id="bgPage1Contact"
       >
         <NavbarBeforeLogin />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
         <motion.div
           className="container mx-auto px-4 py-10 md:py-20"
           initial="hidden"

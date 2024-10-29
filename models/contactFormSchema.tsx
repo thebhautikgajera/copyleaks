@@ -7,6 +7,7 @@ interface IContact extends Document {
   topic: string;
   message: string;
   createdAt: Date;
+  error: string;
 }
 
 const contactSchema = new mongoose.Schema<IContact>({
@@ -34,7 +35,7 @@ const contactSchema = new mongoose.Schema<IContact>({
   topic: {
     type: String,
     required: [true, 'Topic is required'],
-    trim: true
+    trim: true,
   },
   message: {
     type: String,
@@ -42,6 +43,10 @@ const contactSchema = new mongoose.Schema<IContact>({
     trim: true,
     minlength: [10, 'Message must be at least 10 characters long'],
     maxlength: [1000, 'Message cannot exceed 1000 characters']
+  },
+  error: {
+    type: String,
+    trim: true
   },
   createdAt: {
     type: Date,
