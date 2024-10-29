@@ -16,11 +16,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Passwords do not match' }, { status: 400 });
     }
 
+    // Convert username to lowercase
+    const lowercaseUsername = username.toLowerCase();
+
     // Connect to the database
     await connectToDatabase();
 
     // Check if user already exists
-    const existingUser = await Register.findOne({ $or: [{ username }, { email }] });
+    const existingUser = await Register.findOne({ $or: [{ username: lowercaseUsername }, { email }] });
     if (existingUser) {
       return NextResponse.json({ message: 'Username or email already exists' }, { status: 400 });
     }
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
 
     // Create new user
     const newUser = new Register({
-      username,
+      username: lowercaseUsername,
       email,
       password: hashedPassword,
       confirmPassword: hashedPassword, // Add confirmPassword field

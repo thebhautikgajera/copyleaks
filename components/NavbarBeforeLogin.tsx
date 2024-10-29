@@ -57,7 +57,7 @@ const Navbar = () => {
               <Link href="/login" className="flex items-center px-6 py-3 text-2xl text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95 mb-4">
                 Login
               </Link>
-              <Link href="/signup" className="flex items-center px-6 py-3 text-2xl text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 active:scale-95">
+              <Link href="/register" className="flex items-center px-6 py-3 text-2xl text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 active:scale-95">
                 Sign Up
               </Link>
             </div>
@@ -73,7 +73,7 @@ const Navbar = () => {
           <Link href="/login" className="flex items-center text-[1.3vw] px-6 py-2.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95 font-semibold">
             Login
           </Link>
-          <Link href="/signup" className="flex items-center text-[1.3vw] px-6 py-2.5 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/30 hover:scale-105 active:scale-95 font-semibold">
+          <Link href="/register" className="flex items-center text-[1.3vw] px-6 py-2.5 text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/30 hover:scale-105 active:scale-95 font-semibold">
             Sign Up
           </Link>
         </div>

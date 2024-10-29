@@ -14,6 +14,7 @@ const registerSchema = new mongoose.Schema<IRegister>({
     required: [true, 'Username is required'],
     unique: true,
     trim: true,
+    lowercase: true,
     minlength: [3, 'Username must be at least 3 characters long'],
     maxlength: [20, 'Username cannot exceed 20 characters']
   },
