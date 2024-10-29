@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
+import axios from "axios";
 import {
   FiUser,
   FiMail,
@@ -33,16 +34,24 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      topic: "",
-      message: "",
-    });
+    try {
+      const response = await axios.post('/api/contact', formData);
+
+      if (response.status === 200) {
+        console.log('Message sent successfully');
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          topic: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const containerVariants = {
@@ -173,6 +182,11 @@ const Contact = () => {
                 <option value="support">Technical Support</option>
                 <option value="feedback">Feedback</option>
                 <option value="other">Other</option>
+                <option value="bug">Bug Report</option>
+                <option value="feature">Feature Request</option>
+                <option value="billing">Billing Question</option>
+                <option value="partnership">Partnership Inquiry</option>
+                <option value="media">Media Inquiry</option>
               </motion.select>
             </motion.div>
             <motion.div className="mb-6 md:mb-8" variants={itemVariants}>

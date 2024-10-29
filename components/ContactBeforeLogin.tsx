@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
 import NavbarBeforeLogin from "./NavbarBeforeLogin";
+import axios from "axios";
 import {
   FiUser,
   FiMail,
@@ -33,16 +34,24 @@ const ContactBeforeLogin = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      topic: "",
-      message: "",
-    });
+    try {
+      const response = await axios.post('/api/contact', formData);
+
+      if (response.status === 200) {
+        console.log('Message sent successfully');
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          topic: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const containerVariants = {

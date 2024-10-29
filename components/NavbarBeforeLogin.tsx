@@ -38,7 +38,7 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center p-4 bg-transparent shadow-md relative z-50">
       <div className="flex-shrink-0">
-        <Link href="/home">
+        <Link href="/">
           <Image src={Logo} alt="Logo" width={320} height={270} />
         </Link>
       </div>
@@ -50,10 +50,10 @@ const Navbar = () => {
           <div className={`fixed inset-0 bg-indigo-900 bg-opacity-95 z-40 transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex flex-col justify-center items-center h-full">
               
-              <Link href="/home" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/home') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Home</Link>
-              <Link href="/about" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/about') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>About</Link>
-              <Link href="/pricing" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/pricing') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Pricing</Link>
-              <Link href="/contact" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/contact') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Contact Us</Link>
+              <Link href="/" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Home</Link>
+              <Link href="/about-page" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/about-page') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>About</Link>
+              <Link href="/pricing-page" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/pricing-page') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Pricing</Link>
+              <Link href="/contact-page" className={`block px-4 py-2 text-2xl mb-4 ${isActive('/contact-page') ? 'bg-white bg-opacity-20 font-bold' : 'text-white'}`} onClick={toggleMenu}>Contact Us</Link>
               <Link href="/login" className="flex items-center px-6 py-3 text-2xl text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95 mb-4">
                 Login
               </Link>
@@ -66,10 +66,10 @@ const Navbar = () => {
       ) : (
         <div className="flex items-center space-x-6">
           
-          <Link href="/home" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/home') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Home</Link>
-          <Link href="/about" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/about') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>About</Link>
-          <Link href="/pricing" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
-          <Link href="/contact" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact Us</Link>
+          <Link href="/" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Home</Link>
+          <Link href="/about-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/about-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>About</Link>
+          <Link href="/pricing-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/pricing-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Pricing</Link>
+          <Link href="/contact-page" className={`text-[1.3vw] px-3 py-1 rounded ${isActive('/contact-page') ? 'bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg font-bold' : 'text-white hover:text-gray-300'}`}>Contact Us</Link>
           <Link href="/login" className="flex items-center text-[1.3vw] px-6 py-2.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105 active:scale-95 font-semibold">
             Login
           </Link>
