@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import Link from "next/link";
 
 const AdminLogin = () => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -51,13 +50,7 @@ const AdminLogin = () => {
               Admin Login
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Sign in to access your admin dashboard{" "}
-              <Link
-                href="/admin-signup"
-                className="text-indigo-600 hover:text-indigo-500 font-medium"
-              >
-                or create a new account
-              </Link>
+              Sign in to access your admin dashboard
             </p>
           </div>
           <motion.form
