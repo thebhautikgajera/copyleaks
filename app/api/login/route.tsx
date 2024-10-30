@@ -30,7 +30,15 @@ export async function POST(req: Request) {
     }
 
     // User authenticated successfully
-    return NextResponse.json({ message: 'Login successful', user: { id: user._id, username: user.username, email: user.email } }, { status: 200 });
+    return NextResponse.json({ 
+      message: 'Login successful', 
+      user: { 
+        id: user._id, 
+        username: user.username, 
+        email: user.email
+      },
+      redirectUrl: '/home'
+    }, { status: 200 });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ message: 'An error occurred during login' }, { status: 500 });

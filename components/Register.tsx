@@ -34,7 +34,7 @@ const Register = () => {
         username,
         email,
         password,
-        confirmPassword,
+        confirmPassword
       });
 
       if (response.status === 201) {

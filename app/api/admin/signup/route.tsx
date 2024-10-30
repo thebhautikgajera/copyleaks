@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import connectToDatabase from '../../../lib/connectToDatabase';
-import Register from '../../../models/registerSchema';
+import connectToDatabase from '../../../../lib/connectToDatabase';
+import AdminRegister from '../../../../models/adminRegisterSchema';
 
 export async function POST(req: Request) {
   try {
@@ -22,9 +22,9 @@ export async function POST(req: Request) {
     // Connect to the database
     await connectToDatabase();
 
-    // Check if user already exists
-    const existingUser = await Register.findOne({ $or: [{ username: lowercaseUsername }, { email }] });
-    if (existingUser) {
+    // Check if admin already exists
+    const existingAdmin = await AdminRegister.findOne({ $or: [{ username: lowercaseUsername }, { email }] });
+    if (existingAdmin) {
       return NextResponse.json({ message: 'Username or email already exists' }, { status: 400 });
     }
 
@@ -32,20 +32,20 @@ export async function POST(req: Request) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
-    const newUser = new Register({
+    // Create new admin
+    const newAdmin = new AdminRegister({
       username: lowercaseUsername,
       email,
       password: hashedPassword,
       confirmPassword: hashedPassword
     });
 
-    // Save user to database
-    await newUser.save();
+    // Save admin to database
+    await newAdmin.save();
 
-    return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
+    return NextResponse.json({ message: 'Admin registered successfully' }, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);
-    return NextResponse.json({ message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character' }, { status: 500 });
+    return NextResponse.json({ message: 'An error occurred during registration' }, { status: 500 });
   }
 }
