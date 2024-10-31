@@ -40,7 +40,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ScrollArea } from "../components/ui/scroll-area";
 import { Star, Search } from 'lucide-react';
-import { Input } from "../components/ui/input";
 
 interface Contact {
   _id: mongoose.Types.ObjectId;
@@ -263,12 +262,12 @@ const AdminContact = () => {
 
             <div className="mb-6 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
+              <input
                 type="text"
                 placeholder="Search by name, email, subject, topic, or message..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full max-w-xl"
+                className="pl-10 w-full max-w-xl h-9 rounded-md border border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
             </div>
 
