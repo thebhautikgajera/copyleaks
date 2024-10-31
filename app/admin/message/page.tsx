@@ -1,12 +1,12 @@
 import React from 'react'
-import AdminOverview from '../../components/AdminOverview'
+import AdminContact from '../../../components/AdminContact';
 
 const page = () => {
   return (
     <>
-      <AdminOverview />
+      <AdminContact />
     </>
-  )
-}
+  );
+};
 
 export default page

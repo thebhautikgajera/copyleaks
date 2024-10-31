@@ -1,5 +1,5 @@
-import React from 'react'
-import AdminOverview from '../../components/AdminOverview'
+import React from "react";
+import AdminOverview from "../../../components/AdminOverview";
 
 const page = () => {
   return (

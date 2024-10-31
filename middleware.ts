@@ -11,21 +11,17 @@ export function middleware(request: NextRequest) {
 
   // Admin routes middleware
   if (pathname.startsWith('/admin')) {
-    // Admin dashboard and signup protection
-    if (pathname === '/admin' || pathname === '/admin-signup') {
-      if (!authToken) {
-        return NextResponse.redirect(new URL('/admin-login', request.url));
-      }
-    }
-
-    // Redirect logged in admin away from login
-    if (pathname === '/admin-login' && authToken) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-
     // Allow access to admin-login
     if (pathname === '/admin-login') {
+      if (authToken) {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
       return NextResponse.next();
+    }
+
+    // Protect all other admin routes
+    if (!authToken) {
+      return NextResponse.redirect(new URL('/admin-login', request.url));
     }
   }
 
@@ -47,7 +43,10 @@ export const config = {
   matcher: [
     '/home',
     '/admin',
-    '/admin-login', 
+    '/admin-login',
+    '/admin/overview',
+    '/admin/users', 
+    '/admin/message',
     '/admin-signup',
     '/about',
     '/pricing',
