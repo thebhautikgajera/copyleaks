@@ -19,7 +19,12 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Protect all other admin routes and admin-signup
+    // Handle admin-signup separately
+    if (pathname === '/admin-signup') {
+      return NextResponse.redirect(new URL('/admin-login', request.url));
+    }
+
+    // Protect all other admin routes
     if (!authToken) {
       return NextResponse.redirect(new URL('/admin-login', request.url));
     }
