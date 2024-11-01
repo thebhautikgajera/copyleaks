@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   const authToken = request.cookies.get('authToken')?.value;
 
   // Admin routes middleware
-  if (pathname.startsWith('/admin') ) {
+  if (pathname.startsWith('/admin') || pathname === '/admin-signup') {
     // Allow access to admin-login
     if (pathname === '/admin-login') {
       if (authToken) {
@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Protect all other admin routes
+    // Protect all other admin routes and admin-signup
     if (!authToken) {
       return NextResponse.redirect(new URL('/admin-login', request.url));
     }
