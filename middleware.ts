@@ -9,19 +9,19 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value;
   const authToken = request.cookies.get('authToken')?.value;
 
+  // Redirect admin-signup to admin-login
+  if (pathname === '/admin-signup') {
+    return NextResponse.redirect(new URL('/admin-login', request.url));
+  }
+
   // Admin routes middleware
-  if (pathname.startsWith('/admin') || pathname === '/admin-signup') {
+  if (pathname.startsWith('/admin')) {
     // Allow access to admin-login
     if (pathname === '/admin-login') {
       if (authToken) {
         return NextResponse.redirect(new URL('/admin', request.url));
       }
       return NextResponse.next();
-    }
-
-    // Handle admin-signup separately
-    if (pathname === '/admin-signup') {
-      return NextResponse.redirect(new URL('/admin-login', request.url));
     }
 
     // Protect all other admin routes
