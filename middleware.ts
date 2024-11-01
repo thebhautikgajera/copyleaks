@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   const authToken = request.cookies.get('authToken')?.value;
 
   // Admin routes middleware
-  if (pathname.startsWith('/admin') || pathname === '/admin-signup') {
+  if (pathname.startsWith('/admin') ) {
     // Allow access to admin-login
     if (pathname === '/admin-login') {
       if (authToken) {
