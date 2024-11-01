@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   const authToken = request.cookies.get('authToken')?.value;
 
   // Admin routes middleware
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname === '/admin-signup') {
     // Allow access to admin-login
     if (pathname === '/admin-login') {
       if (authToken) {
@@ -43,11 +43,11 @@ export const config = {
   matcher: [
     '/home',
     '/admin',
-    '/admin-login',
+    '/admin-login', 
     '/admin/overview',
     '/admin/users', 
     '/admin/message',
-    // '/admin-signup',
+    '/admin-signup',
     '/about',
     '/pricing',
     '/contact'
