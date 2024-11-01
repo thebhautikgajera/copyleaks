@@ -47,7 +47,7 @@ export const config = {
     '/admin/overview',
     '/admin/users', 
     '/admin/message',
-    '/admin-signup',
+    // '/admin-signup',
     '/about',
     '/pricing',
     '/contact'
