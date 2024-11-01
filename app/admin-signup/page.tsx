@@ -1,10 +1,10 @@
 import React from 'react'
-import AdminSignUp from '../../components/AdminSignUp'
+import AdminLogin from '../../components/AdminLogin';
 
 const page = () => {
   return (
     <>
-      <AdminSignUp />
+      <AdminLogin />
     </>
   );
 };
