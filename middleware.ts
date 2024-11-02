@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
 
   // Block admin-signup completely
   if (pathname === '/admin-signup') {
-    return new NextResponse('Not Found', { status: 404 });
+    return NextResponse.redirect(new URL('/404', request.url));
   }
 
   // Admin routes middleware
