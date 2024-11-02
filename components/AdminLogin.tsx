@@ -76,7 +76,7 @@ const AdminLogin = () => {
           damping: 20,
           duration: 0.8 
         }}
-        className="max-w-md w-full space-y-8 bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl relative z-10"
+        className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl relative z-10"
       >
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.h2 
@@ -275,13 +275,13 @@ const AdminLogin = () => {
       <motion.div
         className="absolute top-0 left-0 w-full h-full"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
+        animate={{ opacity: 0.7 }}
         transition={{ duration: 1 }}
       >
         {[...Array(3)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-indigo-300 to-purple-300 opacity-20"
+            className="absolute rounded-full bg-gradient-to-r from-indigo-300 to-purple-300 opacity-70"
             style={{
               width: Math.random() * 300 + 100,
               height: Math.random() * 300 + 100,
