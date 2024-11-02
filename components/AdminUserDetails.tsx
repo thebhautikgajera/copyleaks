@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AdminSidebar from "./AdminSidebar";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -16,9 +16,7 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
 } from "../components/ui/pagination";
-import { Button } from "../components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +25,6 @@ import {
 } from "../components/ui/dialog";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -49,7 +45,6 @@ interface User {
 const AdminUserDetails = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -58,6 +53,48 @@ const AdminUserDetails = () => {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 9;
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        when: "beforeChildren"
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 12
+      }
+    }
+  };
+
+  const tableRowVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 12
+      }
+    },
+    hover: { 
+      scale: 1.01,
+      backgroundColor: "rgba(0,0,0,0.02)",
+      transition: { duration: 0.2 }
+    }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -75,15 +112,9 @@ const AdminUserDetails = () => {
 
         setUsers(response.data);
         setTotalPages(Math.ceil(response.data.length / itemsPerPage));
-        setError("");
       } catch (err) {
-        const error = err as AxiosError;
-        if (error.response?.status === 404) {
-          setError("User details endpoint not found. Please check the API route.");
-        } else {
-          setError("Failed to fetch users. Please try again later.");
-        }
-        console.error("Error fetching users:", error);
+        console.error("Error fetching users:", err);
+        toast.error("Failed to fetch users");
       } finally {
         setLoading(false);
       }
@@ -131,47 +162,59 @@ const AdminUserDetails = () => {
         setCurrentPage(currentPage - 1);
       }
 
-      toast.success("User deleted successfully!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.success("User deleted successfully!");
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error("Failed to delete user. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Failed to delete user");
     } finally {
       setIsDeletingUser(false);
     }
   };
 
+  if (loading) {
+    return (
+      <motion.div 
+        className="flex min-h-screen"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <AdminSidebar />
+        <div className="flex-grow p-6 flex justify-center items-center">
+          <motion.div 
+            className="h-12 w-12 border-4 border-gray-900 border-t-transparent rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <>
-      <div className="min-h-screen bg-gray-50 overflow-y-hidden">
+      <div className="min-h-screen bg-gray-50">
         <div className="flex">
           <div className="fixed top-0 left-0">
             <AdminSidebar />
           </div>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
             className="flex-1 p-8 ml-64"
           >
-            <div className="flex justify-between items-center mb-8">
+            <motion.div 
+              variants={itemVariants}
+              className="flex justify-between items-center mb-8"
+            >
               <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                 User Details
               </h2>
-              <div className="relative w-64">
+              <motion.div 
+                variants={itemVariants}
+                className="relative w-64"
+              >
                 <input
                   type="text"
                   placeholder="Search users..."
@@ -180,99 +223,108 @@ const AdminUserDetails = () => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full px-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-              </div>
-            ) : error ? (
-              <div className="bg-red-100 text-red-700 p-4 rounded-lg shadow-sm">
-                <p className="font-medium">{error}</p>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg shadow-sm">
-                <p className="font-medium">No users found.</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[200px]">Username</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead className="w-[200px]">Created At</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getCurrentPageData().map((user) => (
-                      <TableRow key={user._id}>
-                        <TableCell className="font-medium">
-                          {user.username}
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          {new Date(user.createdAt).toLocaleDateString('en-GB', {
-                            day: "numeric",
-                            month: "long", 
-                            year: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewUser(user)}
-                          >
-                            View
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white rounded-xl shadow-lg overflow-hidden"
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Username</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead className="w-[200px]">Created At</TableHead>
+                    <TableHead className="w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getCurrentPageData().map((user, index) => (
+                    <motion.tr
+                      key={user._id}
+                      variants={tableRowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                      custom={index}
+                      className="group"
+                    >
+                      <TableCell className="font-medium">{user.username}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        {new Date(user.createdAt).toLocaleDateString('en-GB', {
+                          day: "numeric",
+                          month: "long", 
+                          year: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                          onClick={() => handleViewUser(user)}
+                        >
+                          View
+                        </motion.button>
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <motion.div 
+                variants={itemVariants}
+                className="py-4 border-t"
+              >
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        Previous
+                      </motion.button>
+                    </PaginationItem>
+                    {[...Array(totalPages)].map((_, index) => (
+                      <PaginationItem key={index + 1}>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setCurrentPage(index + 1)}
+                          className={`px-4 py-2 text-sm font-medium rounded-md ${
+                            currentPage === index + 1
+                              ? "bg-gray-900 text-white"
+                              : "text-gray-700 bg-gray-100 hover:bg-gray-200"
+                          }`}
+                        >
+                          {index + 1}
+                        </motion.button>
+                      </PaginationItem>
                     ))}
-                  </TableBody>
-                </Table>
-
-                <div className="py-4 border-t">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <Button 
-                          variant="outline"
-                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </Button>
-                      </PaginationItem>
-                      {[...Array(totalPages)].map((_, index) => (
-                        <PaginationItem key={index + 1}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(index + 1)}
-                            isActive={currentPage === index + 1}
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <Button
-                          variant="outline"
-                          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </Button>
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              </div>
-            )}
+                    <PaginationItem>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        Next
+                      </motion.button>
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -283,7 +335,12 @@ const AdminUserDetails = () => {
             <DialogTitle>User Details</DialogTitle>
           </DialogHeader>
           {selectedUser && (
-            <div className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 12 }}
+              className="space-y-4"
+            >
               <div>
                 <h4 className="font-semibold text-sm text-gray-500">Username</h4>
                 <p className="mt-1">{selectedUser.username}</p>
@@ -304,30 +361,32 @@ const AdminUserDetails = () => {
                   })}
                 </p>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  variant="destructive"
+              <motion.div 
+                className="flex justify-end gap-2 pt-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsAlertDialogOpen(true)}
                   disabled={isDeletingUser}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                 >
-                  {isDeletingUser ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Deleting...
-                    </div>
-                  ) : (
-                    "Delete"
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
+                  {isDeletingUser ? "Deleting..." : "Delete"}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsDialogOpen(false)}
                   disabled={isDeletingUser}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
                 >
                   Close
-                </Button>
-              </div>
-            </div>
+                </motion.button>
+              </motion.div>
+            </motion.div>
           )}
         </DialogContent>
       </Dialog>
@@ -342,21 +401,24 @@ const AdminUserDetails = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeletingUser}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedUser && handleDeleteUser(selectedUser._id)}
-              className="bg-red-500 hover:bg-red-600"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsAlertDialogOpen(false)}
               disabled={isDeletingUser}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
             >
-              {isDeletingUser ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Deleting...
-                </div>
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
+              Cancel
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => selectedUser && handleDeleteUser(selectedUser._id)}
+              disabled={isDeletingUser}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 ml-3"
+            >
+              {isDeletingUser ? "Deleting..." : "Delete"}
+            </motion.button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

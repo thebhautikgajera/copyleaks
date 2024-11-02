@@ -9,9 +9,9 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value;
   const authToken = request.cookies.get('authToken')?.value;
 
-  // Redirect admin-signup to admin-login
+  // Block admin-signup completely
   if (pathname === '/admin-signup') {
-    return NextResponse.redirect(new URL('/admin-login', request.url));
+    return new NextResponse('Not Found', { status: 404 });
   }
 
   // Admin routes middleware

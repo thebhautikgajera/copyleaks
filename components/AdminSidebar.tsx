@@ -3,21 +3,21 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { FaUsers, FaCog, FaChartBar, FaSignOutAlt, FaEnvelope } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaUsers, FaCog, FaChartBar, FaSignOutAlt, FaEnvelope, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import axios from "axios";
 
 const AdminSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Redirect to overview if on root admin path
   React.useEffect(() => {
-    if (pathname === "/admin") {
-      router.push("/admin/overview");
+    if (pathname === "/admin" || pathname === "/admin/") {
+      router.replace("/admin/overview");
     }
   }, [pathname, router]);
 
@@ -66,8 +66,12 @@ const AdminSidebar = () => {
     }
   };
 
+  const settingsItems = [
+    { path: "/admin/settings/profile", label: "Profile Settings" },
+    { path: "/admin/settings/security", label: "Security" },
+  ];
+
   const bottomMenuItems = [
-    { path: "/admin/settings", icon: <FaCog />, label: "Settings" },
     { 
       path: "#", 
       icon: isLoggingOut ? <AiOutlineLoading3Quarters className="animate-spin" /> : <FaSignOutAlt />, 
@@ -78,78 +82,160 @@ const AdminSidebar = () => {
 
   return (
     <motion.div
-      initial={{ width: 250 }}
-      animate={{ width: isCollapsed ? 80 : 250 }}
-      className="min-h-screen bg-white shadow-lg flex flex-col justify-between"
+      initial={{ x: -250, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      className="min-h-screen bg-white shadow-lg flex flex-col justify-between relative"
     >
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          {!isCollapsed && (
-            <h1 className="text-2xl font-bold text-gray-800 tracking-tight"></h1>
-          )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`text-gray-500 hover:text-gray-700 font-bold ${isCollapsed ? 'w-full text-center' : ''}`}
-          >
-            {isCollapsed ? "→" : "←"}
-          </button>
-        </div>
-        <div className="mt-8 space-y-2">
-          {menuItems.map((item) => (
-            <Link
+      <motion.div 
+        className="p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <motion.div 
+          className="flex items-center justify-between mb-4"
+          whileHover={{ scale: 1.02 }}
+        >
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Admin Panel
+          </h1>
+        </motion.div>
+        <motion.div className="mt-8 space-y-2">
+          {menuItems.map((item, index) => (
+            <motion.div
               key={item.path}
-              href={item.path}
-              className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
-                pathname === item.path
-                  ? "bg-blue-50 text-blue-600 font-bold"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
             >
-              <span className="text-xl">{item.icon}</span>
-              {!isCollapsed && (
+              <Link
+                href={item.path}
+                className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
+                  pathname === item.path
+                    ? "bg-blue-50 text-blue-600 font-bold shadow-md"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <motion.span 
+                  className="text-xl"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {item.icon}
+                </motion.span>
                 <span className="ml-3 font-medium">{item.label}</span>
-              )}
-            </Link>
+              </Link>
+            </motion.div>
           ))}
+        </motion.div>
+      </motion.div>
+
+      <motion.div 
+        className="p-4 border-t border-gray-200 bg-gray-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        <div className="relative mb-4">
+          <motion.button
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 
+              ${pathname.startsWith("/admin/settings") ? "bg-blue-50 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-50"}`}
+          >
+            <div className="flex items-center">
+              <motion.span 
+                className="text-xl"
+                animate={{ rotate: isSettingsOpen ? 180 : 0 }}
+              >
+                <FaCog />
+              </motion.span>
+              <span className="ml-3 font-medium">Settings</span>
+            </div>
+            <motion.span 
+              className="text-sm"
+              animate={{ rotate: isSettingsOpen ? 180 : 0 }}
+            >
+              {isSettingsOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </motion.span>
+          </motion.button>
+          
+          <AnimatePresence>
+            {isSettingsOpen && (
+              <motion.div 
+                className="ml-8 mt-1 space-y-1"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {settingsItems.map((item, index) => (
+                  <motion.div
+                    key={item.path}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Link
+                      href={item.path}
+                      className={`block p-2 rounded-md transition-all duration-200 ${
+                        pathname === item.path
+                          ? "bg-blue-50 text-blue-600"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+
         {bottomMenuItems.map((item) => (
           item.onClick ? (
-            <button
+            <motion.button
               key={item.path}
               onClick={item.onClick}
               disabled={isLoggingOut}
+              whileHover={{ scale: 1.02, x: 10 }}
+              whileTap={{ scale: 0.98 }}
               className={`w-full flex items-center p-3 mb-2 rounded-lg transition-all duration-200 
                 ${item.label === "Logout" ? "text-red-600 hover:bg-red-50" : "text-gray-600 hover:bg-gray-100"}
-                ${!isCollapsed && "hover:translate-x-1"}
                 ${isLoggingOut && "opacity-50 cursor-not-allowed"}`}
             >
-              <span className="text-xl">
+              <motion.span 
+                className="text-xl"
+                animate={isLoggingOut ? { rotate: 360 } : {}}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+              >
                 {item.icon}
+              </motion.span>
+              <span className="ml-3 font-medium">
+                {isLoggingOut ? "Logging out..." : item.label}
               </span>
-              {!isCollapsed && (
-                <span className="ml-3 font-medium">
-                  {isLoggingOut ? "Logging out..." : item.label}
-                </span>
-              )}
-            </button>
+            </motion.button>
           ) : (
-            <Link
+            <motion.div
               key={item.path}
-              href={item.path}
-              className={`flex items-center p-3 mb-2 rounded-lg transition-all duration-200 
-                ${pathname === item.path ? "bg-blue-50 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-100"}
-                ${!isCollapsed && "hover:translate-x-1"}`}
+              whileHover={{ scale: 1.02, x: 10 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="text-xl">{item.icon}</span>
-              {!isCollapsed && (
+              <Link
+                href={item.path}
+                className={`flex items-center p-3 mb-2 rounded-lg transition-all duration-200 
+                  ${pathname === item.path ? "bg-blue-50 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-100"}`}
+              >
+                <span className="text-xl">{item.icon}</span>
                 <span className="ml-3 font-medium">{item.label}</span>
-              )}
-            </Link>
+              </Link>
+            </motion.div>
           )
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

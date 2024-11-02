@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import AdminSidebar from "./AdminSidebar";
 import axios, { AxiosError } from "axios";
 import {
@@ -226,10 +226,8 @@ const AdminContact = () => {
       setIsDialogOpen(false);
       setIsAlertDialogOpen(false);
       
-      // Recalculate total pages
       setTotalPages(Math.ceil(updatedContacts.length / itemsPerPage));
       
-      // Adjust current page if necessary
       if (getCurrentPageData().length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
@@ -243,24 +241,68 @@ const AdminContact = () => {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const searchVariants = {
+    rest: { scale: 1 },
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 }
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gray-50">
         <div className="flex">
-          <div className="fixed top-0 left-0">
+          <motion.div 
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="fixed top-0 left-0"
+          >
             <AdminSidebar />
-          </div>
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="flex-1 p-8 ml-64"
           >
-            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 bg-clip-text text-transparent">
+            <motion.h2 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="text-3xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 bg-clip-text text-transparent"
+            >
               Contact Form Submissions
-            </h2>
+            </motion.h2>
 
-            <div className="mb-6 relative">
+            <motion.div 
+              variants={searchVariants}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+              className="mb-6 relative"
+            >
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
@@ -269,24 +311,42 @@ const AdminContact = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-full max-w-xl h-9 rounded-md border border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
-            </div>
+            </motion.div>
 
             {loading ? (
-              <div className="flex justify-center items-center h-64">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex justify-center items-center h-64"
+              >
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-              </div>
+              </motion.div>
             ) : error ? (
-              <div className="bg-red-100 text-red-700 p-4 rounded-lg shadow-sm">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-red-100 text-red-700 p-4 rounded-lg shadow-sm"
+              >
                 <p className="font-medium">{error}</p>
-              </div>
+              </motion.div>
             ) : filteredContacts.length === 0 ? (
-              <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg shadow-sm">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-yellow-50 text-yellow-700 p-4 rounded-lg shadow-sm"
+              >
                 <p className="font-medium">
                   {searchTerm ? "No matching contacts found." : "No contact submissions found."}
                 </p>
-              </div>
+              </motion.div>
             ) : (
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+              >
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -299,204 +359,262 @@ const AdminContact = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getCurrentPageData().map((contact) => (
-                      <TableRow 
-                        key={contact._id.toString()}
-                        className={`${contact.isStarred ? "bg-yellow-100" : !contact.isRead ? "bg-blue-100" : ""}`}
-                      >
-                        <TableCell className="font-medium">
-                          {contact.name}
-                        </TableCell>
-                        <TableCell>{contact.email}</TableCell>
-                        <TableCell>{contact.subject}</TableCell>
-                        <TableCell>{contact.topic}</TableCell>
-                        <TableCell>
-                          {new Date(contact.createdAt).toLocaleDateString('en-GB', {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewMessage(contact)}
-                            className="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-700 hover:text-white text-white border-none shadow-md hover:shadow-lg transition-all duration-200 font-medium rounded-full px-4"
-                          >
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    <AnimatePresence>
+                      {getCurrentPageData().map((contact) => (
+                        <motion.tr
+                          key={contact._id.toString()}
+                          variants={itemVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit={{ opacity: 0, y: -10 }}
+                          className={`${contact.isStarred ? "bg-yellow-100" : !contact.isRead ? "bg-blue-100" : ""}`}
+                          whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+                        >
+                          <TableCell className="font-medium">
+                            {contact.name}
+                          </TableCell>
+                          <TableCell>{contact.email}</TableCell>
+                          <TableCell>{contact.subject}</TableCell>
+                          <TableCell>{contact.topic}</TableCell>
+                          <TableCell>
+                            {new Date(contact.createdAt).toLocaleDateString('en-GB', {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleViewMessage(contact)}
+                              className="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-700 hover:text-white text-white border-none shadow-md hover:shadow-lg transition-all duration-200 font-medium rounded-full px-4 py-2"
+                            >
+                              View Details
+                            </motion.button>
+                          </TableCell>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
                   </TableBody>
                 </Table>
 
-                <div className="py-4 border-t">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="py-4 border-t"
+                >
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
-                        <Button
-                          variant="outline"
-                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </Button>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                          >
+                            Previous
+                          </Button>
+                        </motion.div>
                       </PaginationItem>
                       {[...Array(totalPages)].map((_, index) => (
                         <PaginationItem key={index + 1}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(index + 1)}
-                            isActive={currentPage === index + 1}
-                          >
-                            {index + 1}
-                          </PaginationLink>
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(index + 1)}
+                              isActive={currentPage === index + 1}
+                            >
+                              {index + 1}
+                            </PaginationLink>
+                          </motion.div>
                         </PaginationItem>
                       ))}
                       <PaginationItem>
-                        <Button
-                          variant="outline"
-                          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </Button>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                          </Button>
+                        </motion.div>
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             )}
           </motion.div>
         </div>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Message Details</DialogTitle>
-          </DialogHeader>
-          {selectedMessage && (
-            <ScrollArea className="h-full max-h-[60vh] pr-4">
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-bold">From</h4>
-                  <p>{selectedMessage.name} ({selectedMessage.email})</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-bold">Subject</h4>
-                  <p>{selectedMessage.subject}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-bold">Topic</h4>
-                  <p>{selectedMessage.topic}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-bold">Message</h4>
-                  <p className="whitespace-pre-wrap">{selectedMessage.message}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-bold">Submitted At</h4>
-                  <p>{new Date(selectedMessage.createdAt).toLocaleDateString('en-GB', {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}</p>
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleToggleStarred(selectedMessage._id)}
-                    disabled={isTogglingStarred}
-                    className={selectedMessage.isStarred ? "bg-yellow-100" : ""}
-                  >
-                    {isTogglingStarred ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
-                        Updating...
-                      </div>
-                    ) : (
-                      <>
-                        <Star className={`mr-2 h-4 w-4 ${selectedMessage.isStarred ? "fill-yellow-400 text-yellow-400" : ""}`} />
-                        {selectedMessage.isStarred ? "Unstar" : "Star"}
-                      </>
-                    )}
-                  </Button>
-                  {!selectedMessage.isRead && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleMarkAsRead(selectedMessage._id)}
-                      disabled={isMarkingAsRead}
+      <AnimatePresence>
+        {isDialogOpen && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[80vh]">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <DialogHeader>
+                  <DialogTitle>Message Details</DialogTitle>
+                </DialogHeader>
+                {selectedMessage && (
+                  <ScrollArea className="h-full max-h-[60vh] pr-4">
+                    <motion.div 
+                      className="space-y-4"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
                     >
-                      {isMarkingAsRead ? (
+                      <motion.div variants={itemVariants} className="p-4 border rounded-lg">
+                        <h4 className="font-bold">From</h4>
+                        <p>{selectedMessage.name} ({selectedMessage.email})</p>
+                      </motion.div>
+                      <motion.div variants={itemVariants} className="p-4 border rounded-lg">
+                        <h4 className="font-bold">Subject</h4>
+                        <p>{selectedMessage.subject}</p>
+                      </motion.div>
+                      <motion.div variants={itemVariants} className="p-4 border rounded-lg">
+                        <h4 className="font-bold">Topic</h4>
+                        <p>{selectedMessage.topic}</p>
+                      </motion.div>
+                      <motion.div variants={itemVariants} className="p-4 border rounded-lg">
+                        <h4 className="font-bold">Message</h4>
+                        <p className="whitespace-pre-wrap">{selectedMessage.message}</p>
+                      </motion.div>
+                      <motion.div variants={itemVariants} className="p-4 border rounded-lg">
+                        <h4 className="font-bold">Submitted At</h4>
+                        <p>{new Date(selectedMessage.createdAt).toLocaleDateString('en-GB', {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}</p>
+                      </motion.div>
+                      <motion.div 
+                        variants={itemVariants}
+                        className="flex justify-end space-x-2"
+                      >
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleToggleStarred(selectedMessage._id)}
+                            disabled={isTogglingStarred}
+                            className={selectedMessage.isStarred ? "bg-yellow-100" : ""}
+                          >
+                            {isTogglingStarred ? (
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                                Updating...
+                              </div>
+                            ) : (
+                              <>
+                                <Star className={`mr-2 h-4 w-4 ${selectedMessage.isStarred ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                                {selectedMessage.isStarred ? "Unstar" : "Star"}
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                        {!selectedMessage.isRead && (
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              variant="secondary"
+                              onClick={() => handleMarkAsRead(selectedMessage._id)}
+                              disabled={isMarkingAsRead}
+                            >
+                              {isMarkingAsRead ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                                  Marking as read...
+                                </div>
+                              ) : (
+                                "Mark as Read"
+                              )}
+                            </Button>
+                          </motion.div>
+                        )}
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="destructive"
+                            onClick={() => setIsAlertDialogOpen(true)}
+                            disabled={isDeletingMessage || selectedMessage.isStarred}
+                          >
+                            {isDeletingMessage ? (
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Deleting...
+                              </div>
+                            ) : (
+                              "Delete Message"
+                            )}
+                          </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsDialogOpen(false)}
+                            disabled={isDeletingMessage || isMarkingAsRead || isTogglingStarred}
+                          >
+                            Close
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+                    </motion.div>
+                  </ScrollArea>
+                )}
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isAlertDialogOpen && (
+          <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+            <AlertDialogContent>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this message
+                    from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <AlertDialogCancel disabled={isDeletingMessage}>Cancel</AlertDialogCancel>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <AlertDialogAction
+                      onClick={() => selectedMessage && handleDeleteMessage(selectedMessage._id)}
+                      className="bg-red-500 hover:bg-red-600"
+                      disabled={isDeletingMessage || (selectedMessage?.isStarred ?? false)}
+                    >
+                      {isDeletingMessage ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
-                          Marking as read...
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Deleting...
                         </div>
                       ) : (
-                        "Mark as Read"
+                        "Delete"
                       )}
-                    </Button>
-                  )}
-                  <Button
-                    variant="destructive"
-                    onClick={() => setIsAlertDialogOpen(true)}
-                    disabled={isDeletingMessage || selectedMessage.isStarred}
-                  >
-                    {isDeletingMessage ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Deleting...
-                      </div>
-                    ) : (
-                      "Delete Message"
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                    disabled={isDeletingMessage || isMarkingAsRead || isTogglingStarred}
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
-            </ScrollArea>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this message
-              from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeletingMessage}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedMessage && handleDeleteMessage(selectedMessage._id)}
-              className="bg-red-500 hover:bg-red-600"
-              disabled={isDeletingMessage || (selectedMessage?.isStarred ?? false)}
-            >
-              {isDeletingMessage ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Deleting...
-                </div>
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                    </AlertDialogAction>
+                  </motion.div>
+                </AlertDialogFooter>
+              </motion.div>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </AnimatePresence>
 
       <ToastContainer />
     </>
