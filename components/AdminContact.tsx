@@ -72,14 +72,18 @@ const AdminContact = () => {
   const itemsPerPage = 8;
 
   useEffect(() => {
+    let isMounted = true;
     const fetchContacts = async () => {
       try {
+        setLoading(true);
         const response = await axios.get("/api/users/contact/contact-message", {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
         });
+
+        if (!isMounted) return;
 
         if (!response.data) {
           throw new Error("No data received");
@@ -99,6 +103,8 @@ const AdminContact = () => {
         setTotalPages(Math.ceil(contactsWithObjectId.length / itemsPerPage));
         setError("");
       } catch (err) {
+        if (!isMounted) return;
+        
         const error = err as AxiosError;
         if (error.response?.status === 404) {
           setError("Contact details endpoint not found. Please check the API route.");
@@ -107,11 +113,17 @@ const AdminContact = () => {
         }
         console.error("Error fetching contacts:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchContacts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {

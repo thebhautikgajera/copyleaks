@@ -13,9 +13,10 @@ interface StatCardProps {
   color: string;
   gradient: string;
   delay?: number;
+  isLoading?: boolean;
 }
 
-const StatCard = ({ title, value, icon, color, gradient, delay = 0 }: StatCardProps) => (
+const StatCard = ({ title, value, icon, color, gradient, delay = 0, isLoading = false }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 50, rotateX: -90 }}
     animate={{ opacity: 1, y: 0, rotateX: 0 }}
@@ -62,7 +63,15 @@ const StatCard = ({ title, value, icon, color, gradient, delay = 0 }: StatCardPr
           animate={{ scale: 1 }}
           transition={{ delay: delay + 0.4, type: "spring" }}
         >
-          {value.toLocaleString()}
+          {isLoading ? (
+            <motion.div 
+              className="h-8 w-24 bg-gray-200 rounded animate-pulse"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          ) : (
+            value.toLocaleString()
+          )}
         </motion.h3>
       </motion.div>
       <motion.div
@@ -83,11 +92,11 @@ const StatCard = ({ title, value, icon, color, gradient, delay = 0 }: StatCardPr
 );
 
 const AdminOverview = () => {
-  const [adminCount, setAdminCount] = useState(0);
-  const [contactCount, setContactCount] = useState(0);
-  const [userCount, setUserCount] = useState(0);
-  const [starredCount, setStarredCount] = useState(0);
-  const [readCount, setReadCount] = useState(0);
+  const [adminCount, setAdminCount] = useState<number | null>(null);
+  const [contactCount, setContactCount] = useState<number | null>(null);
+  const [userCount, setUserCount] = useState<number | null>(null);
+  const [starredCount, setStarredCount] = useState<number | null>(null);
+  const [readCount, setReadCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -102,6 +111,9 @@ const AdminOverview = () => {
           axios.get("/api/users/contact/starred/count"),
           axios.get("/api/users/contact/read/count")
         ]);
+
+        // Simulate a slight delay to show loading state
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         setAdminCount(adminResponse.data.count);
         setContactCount(contactResponse.data.count);
@@ -164,38 +176,43 @@ const AdminOverview = () => {
   const stats = [
     {
       title: "Total Users",
-      value: userCount,
+      value: userCount || 0,
       icon: <FaUser />,
       color: "hover:shadow-purple-300",
-      gradient: "bg-gradient-to-br from-purple-600 to-purple-700"
+      gradient: "bg-gradient-to-br from-purple-600 to-purple-700",
+      isLoading: userCount === null
     },
     {
       title: "Total Admins",
-      value: adminCount,
+      value: adminCount || 0,
       icon: <FaUsers />,
       color: "hover:shadow-blue-300",
-      gradient: "bg-gradient-to-br from-blue-600 to-blue-700"
+      gradient: "bg-gradient-to-br from-blue-600 to-blue-700",
+      isLoading: adminCount === null
     },
     {
       title: "Contact Forms",
-      value: contactCount,
+      value: contactCount || 0,
       icon: <FaEnvelope />,
       color: "hover:shadow-emerald-300",
-      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700"
+      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700",
+      isLoading: contactCount === null
     },
     {
       title: "Starred Messages",
-      value: starredCount,
+      value: starredCount || 0,
       icon: <FaStar />,
       color: "hover:shadow-amber-300",
-      gradient: "bg-gradient-to-br from-amber-600 to-amber-700"
+      gradient: "bg-gradient-to-br from-amber-600 to-amber-700",
+      isLoading: starredCount === null
     },
     {
       title: "Read Messages",
-      value: readCount,
+      value: readCount || 0,
       icon: <FaCheckCircle />,
       color: "hover:shadow-green-300",
-      gradient: "bg-gradient-to-br from-green-600 to-green-700"
+      gradient: "bg-gradient-to-br from-green-600 to-green-700",
+      isLoading: readCount === null
     }
   ];
 

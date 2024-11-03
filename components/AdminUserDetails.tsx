@@ -96,30 +96,36 @@ const AdminUserDetails = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("/api/users/user-details", {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/users/user-details", {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        if (!response.data) {
-          throw new Error("No data received");
-        }
-
-        setUsers(response.data);
-        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
-      } catch (err) {
-        console.error("Error fetching users:", err);
-        toast.error("Failed to fetch users");
-      } finally {
-        setLoading(false);
+      if (!response.data) {
+        throw new Error("No data received");
       }
-    };
 
+      // Sort users by createdAt in descending order (newest first)
+      const sortedUsers = response.data.sort((a: User, b: User) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setUsers(sortedUsers);
+      setTotalPages(Math.ceil(sortedUsers.length / itemsPerPage));
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      toast.error("Failed to fetch users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -163,6 +169,9 @@ const AdminUserDetails = () => {
       }
 
       toast.success("User deleted successfully!");
+      
+      // Refresh the users list after deletion
+      fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user");
