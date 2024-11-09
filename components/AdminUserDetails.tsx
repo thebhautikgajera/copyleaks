@@ -53,6 +53,7 @@ const AdminUserDetails = () => {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshRotation, setRefreshRotation] = useState(0);
   const itemsPerPage = 9;
 
   const containerVariants = {
@@ -101,6 +102,7 @@ const AdminUserDetails = () => {
     try {
       if (isManualRefresh) {
         setIsRefreshing(true);
+        setRefreshRotation(prev => prev + 360);
       }
       setLoading(true);
       
@@ -320,6 +322,9 @@ const AdminUserDetails = () => {
                   onClick={handleRefresh}
                   disabled={isRefreshing}
                   className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                  style={{ transform: `rotate(${refreshRotation}deg)` }}
+                  animate={{ rotate: refreshRotation }}
+                  transition={{ type: "spring", stiffness: 100, damping: 10 }}
                 >
                   <FiRefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </motion.button>
