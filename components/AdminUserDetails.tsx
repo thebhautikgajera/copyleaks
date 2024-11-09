@@ -105,71 +105,54 @@ const AdminUserDetails = () => {
         setRefreshRotation(prev => prev + 360);
       }
       setLoading(true);
-      
-      // First try to reload backend data
-      try {
-        await axios.post('/api/users/reload', {}, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          }
-        });
-      } catch (reloadError) {
-        console.warn("Backend reload failed, continuing with fetch:", reloadError);
-      }
 
-      // Then fetch updated data with retry logic
-      let retries = 3;
-      let error;
-      
-      while (retries > 0) {
-        try {
-          const timestamp = new Date().getTime();
-          const response = await axios.get(`/api/users/user-details?t=${timestamp}`, {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-              "Cache-Control": "no-cache, no-store, must-revalidate",
-              "Pragma": "no-cache",
-              "Expires": "0"
-            },
-            timeout: 5000 // 5 second timeout
-          });
-
-          if (!response.data) {
-            throw new Error("No data received");
-          }
-
-          const sortedUsers = response.data.sort((a: User, b: User) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-
-          setUsers(sortedUsers);
-          setTotalPages(Math.ceil(sortedUsers.length / itemsPerPage));
-          
-          if (isManualRefresh) {
-            toast.success("Data refreshed successfully!");
-          }
-          
-          return; // Success - exit the function
-        } catch (err) {
-          error = err;
-          retries--;
-          if (retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-          }
+      const response = await axios.post('/api/users/reload', null, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'timestamp': new Date().getTime()
         }
+      });
+
+      if (!response.data) {
+        throw new Error("No data received");
       }
 
-      // If we get here, all retries failed
-      throw error;
+      const sortedUsers = response.data.sort((a: User, b: User) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setUsers(sortedUsers);
+      setTotalPages(Math.ceil(sortedUsers.length / itemsPerPage));
+      
+      if (isManualRefresh) {
+        toast.success("Data refreshed successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
 
     } catch (err) {
-      console.error("Error fetching users after retries:", err);
-      toast.error("Failed to fetch users. Please try again later.");
-      // Keep existing data if fetch fails
+      console.error("Error fetching users:", err);
+      toast.error("Failed to fetch users. Please try again later.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       if (users.length === 0) {
-        setUsers([]); // Only clear if we had no data
+        setUsers([]);
         setTotalPages(1);
       }
     } finally {
@@ -180,28 +163,14 @@ const AdminUserDetails = () => {
 
   const handleRefresh = () => fetchUsers(true);
 
-  // Initial fetch
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Visibility change handler with retry logic
   useEffect(() => {
-    const handleVisibilityChange = async () => {
+    const handleVisibilityChange = () => {
       if (!document.hidden) {
-        let retries = 3;
-        while (retries > 0) {
-          try {
-            await fetchUsers();
-            break;
-          } catch (error) {
-            console.error("Visibility change fetch error:", error);
-            retries--;
-            if (retries > 0) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          }
-        }
+        fetchUsers();
       }
     };
 
@@ -250,26 +219,29 @@ const AdminUserDetails = () => {
         setCurrentPage(currentPage - 1);
       }
 
-      toast.success("User deleted successfully!");
+      toast.success("User deleted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       
-      // Refresh the users list after deletion with retries
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          await fetchUsers();
-          break;
-        } catch (error) {
-          retries--;
-          if (retries === 0) {
-            console.error("Failed to refresh after deletion:", error);
-          } else {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-      }
+      await fetchUsers();
+
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error("Failed to delete user");
+      toast.error("Failed to delete user. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } finally {
       setIsDeletingUser(false);
     }
@@ -541,7 +513,18 @@ const AdminUserDetails = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };
