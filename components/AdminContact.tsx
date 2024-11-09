@@ -39,7 +39,7 @@ import mongoose from "mongoose";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ScrollArea } from "../components/ui/scroll-area";
-import { Star, Search } from 'lucide-react';
+import { Star, Search, RotateCw } from 'lucide-react';
 
 interface Contact {
   _id: mongoose.Types.ObjectId;
@@ -69,62 +69,70 @@ const AdminContact = () => {
   const [isDeletingMessage, setIsDeletingMessage] = useState(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
   const [isTogglingStarred, setIsTogglingStarred] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   const itemsPerPage = 8;
+
+  const fetchContacts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/users/contact/contact-message", {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.data) {
+        throw new Error("No data received");
+      }
+
+      const contactsWithObjectId = response.data.map((contact: { _id: string; isRead: boolean; isStarred: boolean; lastReadAt?: Date; lastStarredAt?: Date }) => ({
+        ...contact,
+        _id: new mongoose.Types.ObjectId(contact._id),
+        isRead: contact.isRead,
+        isStarred: contact.isStarred,
+        lastReadAt: contact.lastReadAt,
+        lastStarredAt: contact.lastStarredAt
+      }));
+
+      setContacts(contactsWithObjectId);
+      setFilteredContacts(contactsWithObjectId);
+      setTotalPages(Math.ceil(contactsWithObjectId.length / itemsPerPage));
+      setError("");
+    } catch (err) {
+      const error = err as AxiosError;
+      if (error.response?.status === 404) {
+        setError("Contact details endpoint not found. Please check the API route.");
+      } else {
+        setError("Failed to fetch contacts. Please try again later.");
+      }
+      console.error("Error fetching contacts:", error);
+    } finally {
+      setLoading(false);
+      setIsReloading(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
-    const fetchContacts = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("/api/users/contact/contact-message", {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!isMounted) return;
-
-        if (!response.data) {
-          throw new Error("No data received");
-        }
-
-        const contactsWithObjectId = response.data.map((contact: { _id: string; isRead: boolean; isStarred: boolean; lastReadAt?: Date; lastStarredAt?: Date }) => ({
-          ...contact,
-          _id: new mongoose.Types.ObjectId(contact._id),
-          isRead: contact.isRead,
-          isStarred: contact.isStarred,
-          lastReadAt: contact.lastReadAt,
-          lastStarredAt: contact.lastStarredAt
-        }));
-
-        setContacts(contactsWithObjectId);
-        setFilteredContacts(contactsWithObjectId);
-        setTotalPages(Math.ceil(contactsWithObjectId.length / itemsPerPage));
-        setError("");
-      } catch (err) {
-        if (!isMounted) return;
-        
-        const error = err as AxiosError;
-        if (error.response?.status === 404) {
-          setError("Contact details endpoint not found. Please check the API route.");
-        } else {
-          setError("Failed to fetch contacts. Please try again later.");
-        }
-        console.error("Error fetching contacts:", error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+    
+    const doFetch = async () => {
+      if (isMounted) {
+        await fetchContacts();
       }
     };
 
-    fetchContacts();
+    doFetch();
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  const handleManualReload = async () => {
+    setIsReloading(true);
+    await fetchContacts();
+  };
 
   useEffect(() => {
     const filtered = contacts.filter((contact) => {
@@ -299,14 +307,26 @@ const AdminContact = () => {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="flex-1 p-8 ml-64"
           >
-            <motion.h2 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="text-3xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 bg-clip-text text-transparent"
-            >
-              Contact Form Submissions
-            </motion.h2>
+            <div className="flex justify-between items-center mb-8">
+              <motion.h2 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+                className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 bg-clip-text text-transparent"
+              >
+                Contact Form Submissions
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleManualReload}
+                disabled={isReloading}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                <RotateCw className={`h-4 w-4 ${isReloading ? 'animate-spin' : ''}`} />
+                {isReloading ? 'Reloading...' : 'Reload'}
+              </motion.button>
+            </div>
 
             <motion.div 
               variants={searchVariants}

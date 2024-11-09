@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { FaUsers, FaEnvelope, FaUser, FaStar, FaCheckCircle } from "react-icons/fa";
+import { FaUsers, FaEnvelope, FaUser, FaStar, FaCheckCircle, FaSync } from "react-icons/fa";
 import AdminSidebar from "./AdminSidebar";
 
 interface StatCardProps {
@@ -99,74 +99,122 @@ const AdminOverview = () => {
   const [readCount, setReadCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [adminResponse, contactResponse, userResponse, starredResponse, readResponse] = await Promise.all([
-        axios.get("/api/admin/count", {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        }),
-        axios.get("/api/users/contact/count", {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        }),
-        axios.get("/api/users/count", {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        }),
-        axios.get("/api/users/contact/starred/count", {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        }),
-        axios.get("/api/users/contact/read/count", {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        })
+      const fetchWithTimeout = async (url: string) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        try {
+          const response = await axios.get(url, {
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+            },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
+      };
+
+      const [adminResponse, contactResponse, userResponse, starredResponse, readResponse] = await Promise.allSettled([
+        fetchWithTimeout("/api/admin/count"),
+        fetchWithTimeout("/api/users/contact/count"), 
+        fetchWithTimeout("/api/users/count"),
+        fetchWithTimeout("/api/users/contact/starred/count"),
+        fetchWithTimeout("/api/users/contact/read/count")
       ]);
 
-      setAdminCount(adminResponse.data.count);
-      setContactCount(contactResponse.data.count);
-      setUserCount(userResponse.data.count);
-      setStarredCount(starredResponse.data.count || 0);
-      setReadCount(readResponse.data.count || 0);
-      setError("");
+      if (adminResponse.status === 'fulfilled' && adminResponse.value?.data?.count != null) {
+        setAdminCount(adminResponse.value.data.count);
+      }
+      
+      if (contactResponse.status === 'fulfilled' && contactResponse.value?.data?.count != null) {
+        setContactCount(contactResponse.value.data.count);
+      }
+      
+      if (userResponse.status === 'fulfilled' && userResponse.value?.data?.count != null) {
+        setUserCount(userResponse.value.data.count);
+      }
+      
+      if (starredResponse.status === 'fulfilled' && starredResponse.value?.data?.count != null) {
+        setStarredCount(starredResponse.value.data.count);
+      }
+      
+      if (readResponse.status === 'fulfilled' && readResponse.value?.data?.count != null) {
+        setReadCount(readResponse.value.data.count);
+      }
+
+      const failedRequests = [adminResponse, contactResponse, userResponse, starredResponse, readResponse]
+        .filter(response => response.status === 'rejected');
+
+      if (failedRequests.length > 0) {
+        console.error("Some requests failed:", failedRequests);
+        setError("Some data failed to load");
+      } else {
+        setError("");
+      }
+
     } catch (err) {
-      setError("Failed to fetch dashboard data");
+      if (axios.isAxiosError(err)) {
+        setError(`Failed to fetch dashboard data: ${err.message}`);
+      } else {
+        setError("An unexpected error occurred");
+      }
       console.error("Error fetching data:", err);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchData();
+  };
+
   useEffect(() => {
+    let isMounted = true;
+
     const initialFetch = async () => {
-      setIsLoading(true);
-      await fetchData();
+      if (isMounted) {
+        setIsLoading(true);
+        await fetchData();
+      }
     };
 
     initialFetch();
 
-    // Set up polling interval for real-time updates
-    const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    const interval = setInterval(async () => {
+      if (!isMounted) return;
 
-    // Cleanup interval on component unmount
+      try {
+        await fetchData();
+        retryCount = 0;
+      } catch (err) {
+        console.error("Error in interval fetch:", err);
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          clearInterval(interval);
+          if (isMounted) {
+            setError("Failed to update data after multiple retries");
+          }
+        }
+      }
+    }, 5000);
+
     return () => {
+      isMounted = false;
       clearInterval(interval);
     };
   }, []);
@@ -190,7 +238,7 @@ const AdminOverview = () => {
 
   if (error) {
     return (
-      <div className="flex bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <AdminSidebar />
         <div className="flex-1 p-8 flex items-center justify-center">
           <motion.div 
@@ -257,7 +305,7 @@ const AdminOverview = () => {
   ];
 
   return (
-    <div className="flex bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <AdminSidebar />
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
@@ -265,14 +313,25 @@ const AdminOverview = () => {
         transition={{ duration: 0.8, type: "spring" }}
         className="flex-1 p-10"
       >
-        <motion.h2 
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
-          className="text-4xl font-bold mb-12 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 bg-clip-text text-transparent"
-        >
-          Dashboard Overview
-        </motion.h2>
+        <div className="flex justify-between items-center mb-12">
+          <motion.h2 
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, type: "spring" }}
+            className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 bg-clip-text text-transparent"
+          >
+            Dashboard Overview
+          </motion.h2>
+          <motion.button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className={`p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all ${isRefreshing ? 'cursor-not-allowed opacity-50' : ''}`}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaSync className={`text-gray-600 text-xl ${isRefreshing ? 'animate-spin' : ''}`} />
+          </motion.button>
+        </div>
         
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8"
