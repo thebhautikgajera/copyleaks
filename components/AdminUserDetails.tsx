@@ -99,11 +99,11 @@ const AdminUserDetails = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/users/user-details", {
+      const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+      const response = await axios.get(`/api/users/user-details?t=${timestamp}`, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          // Add cache control headers
           "Cache-Control": "no-cache, no-store, must-revalidate",
           "Pragma": "no-cache",
           "Expires": "0"
@@ -134,13 +134,27 @@ const AdminUserDetails = () => {
     fetchUsers();
   }, []);
 
-  // Set up polling for real-time updates
+  // Set up polling for real-time updates with shorter interval
   useEffect(() => {
     const interval = setInterval(() => {
       fetchUsers();
-    }, 5000); // Poll every 5 seconds
+    }, 2000); // Poll every 2 seconds for more frequent updates
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Add event listener for visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchUsers(); // Fetch immediately when tab becomes visible
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const getFilteredUsers = () => {
