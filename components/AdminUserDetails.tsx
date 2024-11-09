@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import AdminSidebar from "./AdminSidebar";
 import axios from "axios";
@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -52,6 +52,7 @@ const AdminUserDetails = () => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const itemsPerPage = 9;
 
   const containerVariants = {
@@ -96,58 +97,109 @@ const AdminUserDetails = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async (isManualRefresh = false): Promise<void> => {
     try {
+      if (isManualRefresh) {
+        setIsRefreshing(true);
+      }
       setLoading(true);
-      const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-      const response = await axios.get(`/api/users/user-details?t=${timestamp}`, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0"
-        },
-      });
-
-      if (!response.data) {
-        throw new Error("No data received");
+      
+      // First try to reload backend data
+      try {
+        await axios.post('/api/users/reload', {}, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+      } catch (reloadError) {
+        console.warn("Backend reload failed, continuing with fetch:", reloadError);
       }
 
-      // Sort users by createdAt in descending order (newest first)
-      const sortedUsers = response.data.sort((a: User, b: User) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      // Then fetch updated data with retry logic
+      let retries = 3;
+      let error;
+      
+      while (retries > 0) {
+        try {
+          const timestamp = new Date().getTime();
+          const response = await axios.get(`/api/users/user-details?t=${timestamp}`, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              "Pragma": "no-cache",
+              "Expires": "0"
+            },
+            timeout: 5000 // 5 second timeout
+          });
 
-      setUsers(sortedUsers);
-      setTotalPages(Math.ceil(sortedUsers.length / itemsPerPage));
+          if (!response.data) {
+            throw new Error("No data received");
+          }
+
+          const sortedUsers = response.data.sort((a: User, b: User) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+          setUsers(sortedUsers);
+          setTotalPages(Math.ceil(sortedUsers.length / itemsPerPage));
+          
+          if (isManualRefresh) {
+            toast.success("Data refreshed successfully!");
+          }
+          
+          return; // Success - exit the function
+        } catch (err) {
+          error = err;
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          }
+        }
+      }
+
+      // If we get here, all retries failed
+      throw error;
+
     } catch (err) {
-      console.error("Error fetching users:", err);
-      toast.error("Failed to fetch users");
+      console.error("Error fetching users after retries:", err);
+      toast.error("Failed to fetch users. Please try again later.");
+      // Keep existing data if fetch fails
+      if (users.length === 0) {
+        setUsers([]); // Only clear if we had no data
+        setTotalPages(1);
+      }
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
-  };
+  }, [users.length]);
 
-  // Fetch initial data
+  const handleRefresh = () => fetchUsers(true);
+
+  // Initial fetch
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
-  // Set up polling for real-time updates with shorter interval
+  // Visibility change handler with retry logic
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchUsers();
-    }, 2000); // Poll every 2 seconds for more frequent updates
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Add event listener for visibility changes
-  useEffect(() => {
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = async () => {
       if (!document.hidden) {
-        fetchUsers(); // Fetch immediately when tab becomes visible
+        let retries = 3;
+        while (retries > 0) {
+          try {
+            await fetchUsers();
+            break;
+          } catch (error) {
+            console.error("Visibility change fetch error:", error);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        }
       }
     };
 
@@ -155,21 +207,21 @@ const AdminUserDetails = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [fetchUsers]);
 
-  const getFilteredUsers = () => {
+  const getFilteredUsers = useCallback(() => {
     return users.filter(user => 
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  };
+  }, [users, searchQuery]);
 
-  const getCurrentPageData = () => {
+  const getCurrentPageData = useCallback(() => {
     const filteredUsers = getFilteredUsers();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return filteredUsers.slice(startIndex, endIndex);
-  };
+  }, [currentPage, getFilteredUsers]);
 
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
@@ -198,8 +250,21 @@ const AdminUserDetails = () => {
 
       toast.success("User deleted successfully!");
       
-      // Refresh the users list after deletion
-      fetchUsers();
+      // Refresh the users list after deletion with retries
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          await fetchUsers();
+          break;
+        } catch (error) {
+          retries--;
+          if (retries === 0) {
+            console.error("Failed to refresh after deletion:", error);
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user");
@@ -245,9 +310,20 @@ const AdminUserDetails = () => {
               variants={itemVariants}
               className="flex justify-between items-center mb-8"
             >
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                User Details
-              </h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  User Details
+                </h2>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <FiRefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </motion.button>
+              </div>
               <motion.div 
                 variants={itemVariants}
                 className="relative w-64"
