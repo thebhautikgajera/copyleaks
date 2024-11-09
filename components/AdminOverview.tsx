@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { FaUsers, FaEnvelope, FaUser, FaStar, FaCheckCircle } from "react-icons/fa";
 import AdminSidebar from "./AdminSidebar";
 
@@ -92,18 +92,20 @@ const StatCard = ({ title, value, icon, color, gradient, delay = 0, isLoading = 
 );
 
 const AdminOverview = () => {
-  const [adminCount, setAdminCount] = useState<number | null>(null);
-  const [contactCount, setContactCount] = useState<number | null>(null);
-  const [userCount, setUserCount] = useState<number | null>(null);
-  const [starredCount, setStarredCount] = useState<number | null>(null);
-  const [readCount, setReadCount] = useState<number | null>(null);
+  const [adminCount, setAdminCount] = useState<number>(0);
+  const [contactCount, setContactCount] = useState<number>(0);
+  const [userCount, setUserCount] = useState<number>(0);
+  const [starredCount, setStarredCount] = useState<number>(0);
+  const [readCount, setReadCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
+        setError("");
+
         const [adminResponse, contactResponse, userResponse, starredResponse, readResponse] = await Promise.all([
           axios.get("/api/admin/count"),
           axios.get("/api/users/contact/count"),
@@ -112,17 +114,16 @@ const AdminOverview = () => {
           axios.get("/api/users/contact/read/count")
         ]);
 
-        // Simulate a slight delay to show loading state
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
         setAdminCount(adminResponse.data.count);
         setContactCount(contactResponse.data.count);
         setUserCount(userResponse.data.count);
-        setStarredCount(starredResponse.data.count || 0);
-        setReadCount(readResponse.data.count || 0);
+        setStarredCount(starredResponse.data.count);
+        setReadCount(readResponse.data.count);
+
       } catch (err) {
-        setError("Failed to fetch dashboard data");
-        console.error("Error fetching data:", err);
+        const error = err as AxiosError<{message?: string}>;
+        setError(error.response?.data?.message || error.message || "Failed to fetch dashboard data");
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -176,43 +177,38 @@ const AdminOverview = () => {
   const stats = [
     {
       title: "Total Users",
-      value: userCount || 0,
+      value: userCount,
       icon: <FaUser />,
       color: "hover:shadow-purple-300",
-      gradient: "bg-gradient-to-br from-purple-600 to-purple-700",
-      isLoading: userCount === null
+      gradient: "bg-gradient-to-br from-purple-600 to-purple-700"
     },
     {
       title: "Total Admins",
-      value: adminCount || 0,
+      value: adminCount,
       icon: <FaUsers />,
       color: "hover:shadow-blue-300",
-      gradient: "bg-gradient-to-br from-blue-600 to-blue-700",
-      isLoading: adminCount === null
+      gradient: "bg-gradient-to-br from-blue-600 to-blue-700"
     },
     {
       title: "Contact Forms",
-      value: contactCount || 0,
+      value: contactCount,
       icon: <FaEnvelope />,
       color: "hover:shadow-emerald-300",
-      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700",
-      isLoading: contactCount === null
+      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700"
     },
     {
       title: "Starred Messages",
-      value: starredCount || 0,
+      value: starredCount,
       icon: <FaStar />,
       color: "hover:shadow-amber-300",
-      gradient: "bg-gradient-to-br from-amber-600 to-amber-700",
-      isLoading: starredCount === null
+      gradient: "bg-gradient-to-br from-amber-600 to-amber-700"
     },
     {
       title: "Read Messages",
-      value: readCount || 0,
+      value: readCount,
       icon: <FaCheckCircle />,
       color: "hover:shadow-green-300",
-      gradient: "bg-gradient-to-br from-green-600 to-green-700",
-      isLoading: readCount === null
+      gradient: "bg-gradient-to-br from-green-600 to-green-700"
     }
   ];
 
