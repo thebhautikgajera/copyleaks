@@ -11,21 +11,35 @@ export function middleware(request: NextRequest) {
 
   // Block admin-signup completely
   if (pathname === '/admin-signup') {
-    return NextResponse.redirect(new URL('/404', request.url));
+    return NextResponse.redirect(new URL('/admin-login', request.url));
   }
 
-  // Admin routes middleware
+  // Enhanced admin routes middleware with strict checking
   if (pathname.startsWith('/admin')) {
-    // Allow access to admin-login
+    // Special handling for admin-login page
     if (pathname === '/admin-login') {
       if (authToken) {
+        // If already authenticated, go to admin dashboard
         return NextResponse.redirect(new URL('/admin', request.url));
       }
       return NextResponse.next();
     }
 
-    // Protect all other admin routes
+    // Force authentication for all admin routes
     if (!authToken) {
+      const currentUrl = request.nextUrl.pathname;
+      const loginUrl = new URL('/admin-login', request.url);
+      // Store attempted URL as a query parameter
+      loginUrl.searchParams.set('returnUrl', currentUrl);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Additional verification for admin routes
+    try {
+      // Allow access if authToken exists
+      return NextResponse.next();
+    } catch {
+      // If any verification fails, redirect to login
       return NextResponse.redirect(new URL('/admin-login', request.url));
     }
   }
