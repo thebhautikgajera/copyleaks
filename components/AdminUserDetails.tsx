@@ -103,6 +103,10 @@ const AdminUserDetails = () => {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
+          // Add cache control headers
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
         },
       });
 
@@ -125,8 +129,18 @@ const AdminUserDetails = () => {
     }
   };
 
+  // Fetch initial data
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  // Set up polling for real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUsers();
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const getFilteredUsers = () => {
