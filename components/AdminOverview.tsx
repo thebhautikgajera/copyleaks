@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { FaUsers, FaEnvelope, FaUser, FaStar, FaCheckCircle } from "react-icons/fa";
 import AdminSidebar from "./AdminSidebar";
 
@@ -92,47 +92,86 @@ const StatCard = ({ title, value, icon, color, gradient, delay = 0, isLoading = 
 );
 
 const AdminOverview = () => {
-  const [adminCount, setAdminCount] = useState<number>(0);
-  const [contactCount, setContactCount] = useState<number>(0);
-  const [userCount, setUserCount] = useState<number>(0);
-  const [starredCount, setStarredCount] = useState<number>(0);
-  const [readCount, setReadCount] = useState<number>(0);
+  const [adminCount, setAdminCount] = useState<number | null>(null);
+  const [contactCount, setContactCount] = useState<number | null>(null);
+  const [userCount, setUserCount] = useState<number | null>(null);
+  const [starredCount, setStarredCount] = useState<number | null>(null);
+  const [readCount, setReadCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const fetchData = async () => {
+    try {
+      const [adminResponse, contactResponse, userResponse, starredResponse, readResponse] = await Promise.all([
+        axios.get("/api/admin/count", {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }),
+        axios.get("/api/users/contact/count", {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }),
+        axios.get("/api/users/count", {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }),
+        axios.get("/api/users/contact/starred/count", {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }),
+        axios.get("/api/users/contact/read/count", {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        })
+      ]);
+
+      setAdminCount(adminResponse.data.count);
+      setContactCount(contactResponse.data.count);
+      setUserCount(userResponse.data.count);
+      setStarredCount(starredResponse.data.count || 0);
+      setReadCount(readResponse.data.count || 0);
+      setError("");
+    } catch (err) {
+      setError("Failed to fetch dashboard data");
+      console.error("Error fetching data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-
-        const [adminResponse, contactResponse, userResponse, starredResponse, readResponse] = await Promise.all([
-          axios.get("/api/admin/count"),
-          axios.get("/api/users/contact/count"),
-          axios.get("/api/users/count"),
-          axios.get("/api/users/contact/starred/count"),
-          axios.get("/api/users/contact/read/count")
-        ]);
-
-        setAdminCount(adminResponse.data.count);
-        setContactCount(contactResponse.data.count);
-        setUserCount(userResponse.data.count);
-        setStarredCount(starredResponse.data.count);
-        setReadCount(readResponse.data.count);
-
-      } catch (err) {
-        const error = err as AxiosError<{message?: string}>;
-        setError(error.response?.data?.message || error.message || "Failed to fetch dashboard data");
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+    const initialFetch = async () => {
+      setIsLoading(true);
+      await fetchData();
     };
 
-    fetchData();
+    initialFetch();
+
+    // Set up polling interval for real-time updates
+    const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
+
+    // Cleanup interval on component unmount
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  if (isLoading) {
+  if (isLoading && !adminCount && !contactCount && !userCount && !starredCount && !readCount) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <AdminSidebar />
@@ -177,38 +216,43 @@ const AdminOverview = () => {
   const stats = [
     {
       title: "Total Users",
-      value: userCount,
+      value: userCount || 0,
       icon: <FaUser />,
       color: "hover:shadow-purple-300",
-      gradient: "bg-gradient-to-br from-purple-600 to-purple-700"
+      gradient: "bg-gradient-to-br from-purple-600 to-purple-700",
+      isLoading: userCount === null
     },
     {
       title: "Total Admins",
-      value: adminCount,
+      value: adminCount || 0,
       icon: <FaUsers />,
       color: "hover:shadow-blue-300",
-      gradient: "bg-gradient-to-br from-blue-600 to-blue-700"
+      gradient: "bg-gradient-to-br from-blue-600 to-blue-700",
+      isLoading: adminCount === null
     },
     {
       title: "Contact Forms",
-      value: contactCount,
+      value: contactCount || 0,
       icon: <FaEnvelope />,
       color: "hover:shadow-emerald-300",
-      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700"
+      gradient: "bg-gradient-to-br from-emerald-600 to-emerald-700",
+      isLoading: contactCount === null
     },
     {
       title: "Starred Messages",
-      value: starredCount,
+      value: starredCount || 0,
       icon: <FaStar />,
       color: "hover:shadow-amber-300",
-      gradient: "bg-gradient-to-br from-amber-600 to-amber-700"
+      gradient: "bg-gradient-to-br from-amber-600 to-amber-700",
+      isLoading: starredCount === null
     },
     {
       title: "Read Messages",
-      value: readCount,
+      value: readCount || 0,
       icon: <FaCheckCircle />,
       color: "hover:shadow-green-300",
-      gradient: "bg-gradient-to-br from-green-600 to-green-700"
+      gradient: "bg-gradient-to-br from-green-600 to-green-700",
+      isLoading: readCount === null
     }
   ];
 

@@ -8,9 +8,17 @@ export async function GET() {
     await connectDB();
 
     // Get all users, excluding passwords
-    const users = await User.find().select("-password");
+    const users = await User.find().select("-password").maxTimeMS(30000);
 
-    return NextResponse.json(users, { status: 200 });
+    return new NextResponse(JSON.stringify(users), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
 
   } catch (error) {
     console.error("Error fetching users:", error);

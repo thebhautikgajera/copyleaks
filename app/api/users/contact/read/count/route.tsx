@@ -6,9 +6,17 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const count = await Contact.countDocuments({ isRead: true });
+    const count = await Contact.countDocuments({ isRead: true }, { maxTimeMS: 30000 });
 
-    return NextResponse.json({ count });
+    return new NextResponse(JSON.stringify({ count }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
 
   } catch (error) {
     console.error("Error getting read message count:", error);
