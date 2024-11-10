@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
-import NavbarBeforeLogin from "./NavbarBeforeLogin";
 import axios, { AxiosError } from "axios";
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   FiUser,
@@ -16,7 +16,7 @@ import {
 } from "react-icons/fi";
 import { ClipLoader } from "react-spinners";
 
-const ContactBeforeLogin = () => {
+const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -94,29 +94,36 @@ const ContactBeforeLogin = () => {
       ...prevState,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setIsLoading(true);
-
+    
     if (!validateForm()) {
-      setIsSubmitting(false);
-      setIsLoading(false);
+      toast.error("Please fix the errors in the form");
       return;
     }
 
-    // Sanitize form data before sending
-    const sanitizedData = {
-      name: formData.name.trim(),
-      email: formData.email.trim().toLowerCase(),
-      subject: formData.subject.trim(),
-      topic: formData.topic.trim().toLowerCase(),
-      message: formData.message.trim()
-    };
-    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setIsLoading(true);
+
     try {
+      const sanitizedData = {
+        ...formData,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim()
+      };
+
       const response = await axios.post('/api/contact', sanitizedData);
 
       if (response.status === 200) {
@@ -184,7 +191,7 @@ const ContactBeforeLogin = () => {
         className="min-h-screen w-full pb-[4vw] text-white bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900"
         id="bgPage1Contact"
       >
-        <NavbarBeforeLogin />
+        <Navbar />
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -307,6 +314,11 @@ const ContactBeforeLogin = () => {
                 <option value="support">Technical Support</option>
                 <option value="feedback">Feedback</option>
                 <option value="other">Other</option>
+                <option value="bug">Bug Report</option>
+                <option value="feature">Feature Request</option>
+                <option value="billing">Billing Question</option>
+                <option value="partnership">Partnership Inquiry</option>
+                <option value="media">Media Inquiry</option>
               </motion.select>
               {errors.topic && <p className="mt-1 text-red-500 text-sm">{errors.topic}</p>}
             </motion.div>
@@ -358,4 +370,4 @@ const ContactBeforeLogin = () => {
   );
 };
 
-export default ContactBeforeLogin;
+export default Contact;
