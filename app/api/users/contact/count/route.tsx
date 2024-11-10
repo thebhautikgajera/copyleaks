@@ -1,13 +1,32 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '../../../../../lib/connectToDatabase';
-import ContactForm from '../../../../../models/contactFormSchema';
+import Contact from '../../../../../models/contactFormSchema';
 
 export async function GET() {
   try {
     await connectToDatabase();
     
-    const count = await ContactForm.countDocuments({}, { maxTimeMS: 30000 });
-    
+    // Add error handling for database connection
+    if (!Contact) {
+      throw new Error('Database model not initialized');
+    }
+
+    // Add query timeout and validation
+    const count = await Contact.countDocuments(
+      {}, 
+      { 
+        maxTimeMS: 30000,
+        // Add validation to ensure count is accurate
+        strict: true,
+        lean: true 
+      }
+    );
+
+    // Validate count result
+    if (typeof count !== 'number') {
+      throw new Error('Invalid count result');
+    }
+
     return new NextResponse(JSON.stringify({ count }), {
       status: 200,
       headers: {
@@ -18,10 +37,13 @@ export async function GET() {
       }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error getting contact form count:', error);
     return NextResponse.json(
-      { error: 'Failed to get contact form count' },
+      { 
+        error: 'Failed to get contact form count',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

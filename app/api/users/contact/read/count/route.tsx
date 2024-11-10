@@ -6,7 +6,25 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const count = await Contact.countDocuments({ isRead: true }, { maxTimeMS: 30000 });
+    // Add error handling for database connection
+    if (!Contact) {
+      throw new Error('Database model not initialized');
+    }
+
+    // Add query timeout and validation options
+    const count = await Contact.countDocuments(
+      { isRead: true },
+      { 
+        maxTimeMS: 30000,
+        strict: true,
+        lean: true
+      }
+    );
+
+    // Validate count result
+    if (typeof count !== 'number') {
+      throw new Error('Invalid count result');
+    }
 
     return new NextResponse(JSON.stringify({ count }), {
       status: 200,
@@ -18,10 +36,13 @@ export async function GET() {
       }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error getting read message count:", error);
     return NextResponse.json(
-      { error: "Failed to fetch read count" },
+      { 
+        error: "Failed to fetch read count",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

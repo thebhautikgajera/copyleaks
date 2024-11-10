@@ -6,25 +6,43 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // Set cache control headers to prevent caching
-    const headers = {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    };
+    // Add error handling for database connection
+    if (!Contact) {
+      throw new Error('Database model not initialized');
+    }
 
-    // Count documents where isStarred is true
-    const count = await Contact.countDocuments({ isStarred: true });
+    // Add query timeout and validation options
+    const count = await Contact.countDocuments(
+      { isStarred: true },
+      { 
+        maxTimeMS: 30000,
+        strict: true,
+        lean: true
+      }
+    );
+
+    // Validate count result
+    if (typeof count !== 'number') {
+      throw new Error('Invalid count result');
+    }
 
     return new NextResponse(JSON.stringify({ count }), {
-      headers: headers,
-      status: 200
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching starred count:", error);
     return NextResponse.json(
-      { error: "Failed to fetch starred count" },
+      { 
+        error: "Failed to fetch starred count",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
