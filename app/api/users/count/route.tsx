@@ -11,17 +11,18 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
 
-    // Use aggregate to count users
-    const result = await Register.aggregate([
+    // Use find() with lean() for better performance and accurate count
+    const users = await Register.find(
+      {},
+      null,
       {
-        $count: "total"
+        maxTimeMS: 30000,
+        strict: true,
+        lean: true
       }
-    ], {
-      maxTimeMS: 30000
-    });
+    );
 
-    // Extract count from aggregate result
-    const count = result[0]?.total || 0;
+    const count = users.length;
 
     // Validate count result
     if (typeof count !== 'number') {

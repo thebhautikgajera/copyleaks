@@ -11,33 +11,28 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
 
-    // Use find() and length instead of countDocuments
-    const starredContacts = await Contact.find(
-      { isStarred: true },
-      null,
-      { 
-        maxTimeMS: 30000,
-        strict: true,
-        lean: true
-      }
-    );
-
-    const count = starredContacts.length;
+    // Use countDocuments for accurate count of starred messages
+    const count = await Contact.countDocuments({ 
+      isStarred: true 
+    });
 
     // Validate count result
     if (typeof count !== 'number') {
       throw new Error('Invalid count result');
     }
 
-    return new NextResponse(JSON.stringify({ count }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+    return NextResponse.json(
+      { count },
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       }
-    });
+    );
 
   } catch (error: unknown) {
     console.error("Error fetching starred count:", error);

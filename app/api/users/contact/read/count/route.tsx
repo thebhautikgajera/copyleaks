@@ -11,22 +11,8 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
 
-    // Use aggregate to count read messages
-    const result = await Contact.aggregate([
-      {
-        $match: {
-          isRead: true
-        }
-      },
-      {
-        $count: "total"
-      }
-    ], {
-      maxTimeMS: 30000
-    });
-
-    // Extract count from aggregate result
-    const count = result[0]?.total || 0;
+    // Use countDocuments for accurate count of read messages
+    const count = await Contact.countDocuments({ isRead: true });
 
     // Validate count result
     if (typeof count !== 'number') {
