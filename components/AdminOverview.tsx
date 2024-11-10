@@ -13,34 +13,37 @@ const AdminOverview = () => {
   const [readCount, setReadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchAllStats = async () => {
+  const fetchStats = async (endpoint: string) => {
     try {
-      setIsLoading(true);
-      const [
-        adminResponse,
-        userResponse, 
-        messageResponse,
-        starredResponse,
-        readResponse
-      ] = await Promise.all([
-        fetch('/api/admin/count'),
-        fetch('/api/users/count'),
-        fetch('/api/users/contact/count'),
-        fetch('/api/users/contact/starred/count'),
-        fetch('/api/users/contact/read/count')
-      ]);
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.count;
+    } catch (error) {
+      console.error(`Error fetching from ${endpoint}:`, error);
+      return 0;
+    }
+  };
 
-      const adminData = await adminResponse.json();
-      const userData = await userResponse.json();
-      const messageData = await messageResponse.json();
-      const starredData = await starredResponse.json();
-      const readData = await readResponse.json();
+  const fetchAllStats = async () => {
+    setIsLoading(true);
+    try {
+      const adminCount = await fetchStats('/api/admin/count');
+      setAdminCount(adminCount);
 
-      setAdminCount(adminData.count);
-      setUserCount(userData.count);
-      setMessageCount(messageData.count);
-      setStarredCount(starredData.count);
-      setReadCount(readData.count);
+      const userCount = await fetchStats('/api/users/count');
+      setUserCount(userCount);
+
+      const messageCount = await fetchStats('/api/users/contact/count');
+      setMessageCount(messageCount);
+
+      const starredCount = await fetchStats('/api/users/contact/starred/count');
+      setStarredCount(starredCount);
+
+      const readCount = await fetchStats('/api/users/contact/read/count');
+      setReadCount(readCount);
 
     } catch (error) {
       console.error('Error fetching counts:', error);
