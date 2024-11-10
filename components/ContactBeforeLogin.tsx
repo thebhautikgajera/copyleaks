@@ -310,15 +310,15 @@ const Contact = () => {
                 whileFocus={{ scale: 1.02 }}
               >
                 <option value="">Select a topic</option>
-                <option value="general">General Inquiry</option>
-                <option value="support">Technical Support</option>
-                <option value="feedback">Feedback</option>
-                <option value="other">Other</option>
-                <option value="bug">Bug Report</option>
-                <option value="feature">Feature Request</option>
-                <option value="billing">Billing Question</option>
-                <option value="partnership">Partnership Inquiry</option>
-                <option value="media">Media Inquiry</option>
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Technical Support">Technical Support</option>
+                <option value="Feedback">Feedback</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="Billing Question">Billing Question</option>
+                <option value="Partnership Inquiry">Partnership Inquiry</option>
+                <option value="Media Inquiry">Media Inquiry</option>
+                <option value="Other">Other</option>
               </motion.select>
               {errors.topic && <p className="mt-1 text-red-500 text-sm">{errors.topic}</p>}
             </motion.div>
