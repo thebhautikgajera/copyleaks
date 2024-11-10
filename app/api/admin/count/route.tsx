@@ -12,15 +12,21 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
     
-    // Add query to only count active/valid admin accounts
-    const count = await AdminRegisterSchema.countDocuments(
-      { isActive: true, isVerified: true },
-      { 
-        maxTimeMS: 30000,
-        strict: true,
-        lean: true
+    // Use aggregate to count active/verified admins
+    const result = await AdminRegisterSchema.aggregate([
+      {
+        $match: {
+          isActive: true,
+          isVerified: true
+        }
+      },
+      {
+        $count: "totalCount"
       }
-    );
+    ]).exec();
+
+    // Extract count from aggregate result
+    const count = result[0]?.totalCount || 0;
 
     // Validate count result
     if (typeof count !== 'number') {
@@ -28,18 +34,15 @@ export async function GET() {
     }
     
     // Return count with proper headers
-    return NextResponse.json(
-      { count },
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+    return new NextResponse(JSON.stringify({ count }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
-    );
+    });
 
   } catch (error: unknown) {
     console.error("Failed to get admin count:", error);

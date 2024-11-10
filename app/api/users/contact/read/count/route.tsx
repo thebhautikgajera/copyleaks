@@ -11,15 +11,22 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
 
-    // Add query timeout and validation options
-    const count = await Contact.countDocuments(
-      { isRead: true },
-      { 
-        maxTimeMS: 30000,
-        strict: true,
-        lean: true
+    // Use aggregate to count read messages
+    const result = await Contact.aggregate([
+      {
+        $match: {
+          isRead: true
+        }
+      },
+      {
+        $count: "total"
       }
-    );
+    ], {
+      maxTimeMS: 30000
+    });
+
+    // Extract count from aggregate result
+    const count = result[0]?.total || 0;
 
     // Validate count result
     if (typeof count !== 'number') {

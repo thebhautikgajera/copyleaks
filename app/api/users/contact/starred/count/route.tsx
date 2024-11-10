@@ -11,15 +11,18 @@ export async function GET() {
       throw new Error('Database model not initialized');
     }
 
-    // Add query timeout and validation options
-    const count = await Contact.countDocuments(
+    // Use find() and length instead of countDocuments
+    const starredContacts = await Contact.find(
       { isStarred: true },
+      null,
       { 
         maxTimeMS: 30000,
         strict: true,
         lean: true
       }
     );
+
+    const count = starredContacts.length;
 
     // Validate count result
     if (typeof count !== 'number') {

@@ -5,22 +5,26 @@ import Contact from '../../../../../models/contactFormSchema';
 export async function GET() {
   try {
     await connectToDatabase();
-    
+
     // Add error handling for database connection
     if (!Contact) {
       throw new Error('Database model not initialized');
     }
 
-    // Add query timeout and validation
-    const count = await Contact.countDocuments(
-      {}, 
-      { 
-        maxTimeMS: 30000,
-        // Add validation to ensure count is accurate
-        strict: true,
-        lean: true 
+    // Use aggregate to get count with timeout
+    const result = await Contact.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
       }
-    );
+    ], {
+      maxTimeMS: 30000
+    }).exec();
+
+    // Extract count from aggregate result
+    const count = result[0]?.count || 0;
 
     // Validate count result
     if (typeof count !== 'number') {
