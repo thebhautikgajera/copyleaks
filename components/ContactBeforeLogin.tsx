@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "./Navbar";
+import NavbarBeforeLogin from "./NavbarBeforeLogin";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
 import axios, { AxiosError } from "axios";
@@ -191,7 +191,7 @@ const Contact = () => {
         className="min-h-screen w-full pb-[4vw] text-white bg-gradient-to-br from-purple-800 via-indigo-900 to-blue-900"
         id="bgPage1Contact"
       >
-        <Navbar />
+        <NavbarBeforeLogin />
         <ToastContainer
           position="top-right"
           autoClose={5000}
