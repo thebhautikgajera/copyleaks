@@ -25,22 +25,23 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Force authentication for all admin routes
+    // Force authentication for all other admin routes
     if (!authToken) {
-      const currentUrl = request.nextUrl.pathname;
+      // Store the current URL before redirecting
+      const currentUrl = request.nextUrl.pathname + request.nextUrl.search;
       const loginUrl = new URL('/admin-login', request.url);
-      // Store attempted URL as a query parameter
       loginUrl.searchParams.set('returnUrl', currentUrl);
       return NextResponse.redirect(loginUrl);
     }
 
-    // Additional verification for admin routes
-    try {
-      // Allow access if authToken exists
+    // Verify token and allow access
+    if (authToken) {
       return NextResponse.next();
-    } catch {
-      // If any verification fails, redirect to login
-      return NextResponse.redirect(new URL('/admin-login', request.url));
+    } else {
+      // If verification fails, redirect to login and clear cookies
+      const response = NextResponse.redirect(new URL('/admin-login', request.url));
+      response.cookies.delete('authToken');
+      return response;
     }
   }
 
@@ -53,6 +54,13 @@ export function middleware(request: NextRequest) {
 
   if ((pathname === '/login' || pathname === '/register') && sessionToken) {
     return NextResponse.redirect(new URL('/home', request.url));
+  }
+
+  // Check if user is leaving admin pages and clear admin auth
+  if (authToken && !pathname.startsWith('/admin')) {
+    const response = NextResponse.next();
+    response.cookies.delete('authToken');
+    return response;
   }
 
   return NextResponse.next();
